@@ -2,6 +2,7 @@ package vrms;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 
 public class RegisterPage extends JFrame {
@@ -44,12 +45,16 @@ public class RegisterPage extends JFrame {
         addField(root, "Password", passwordField);
 
         JButton registerButton = new JButton("REGISTER");
+        registerButton.setUI(new BasicButtonUI());
         registerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerButton.setBackground(new Color(58, 127, 213));
         registerButton.setForeground(Color.WHITE);
+        registerButton.setOpaque(true);
+        registerButton.setBorderPainted(false);
         registerButton.setFocusPainted(false);
         registerButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+        registerButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         registerButton.addActionListener(e -> {
             if (nameField.getText().trim().isEmpty()
                     || emailField.getText().trim().isEmpty()
