@@ -42,8 +42,9 @@ public class LoginPage extends JFrame {
         subtitle.setForeground(new Color(80, 90, 105));
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel vehicleIcon = new JLabel("🚗");
-        vehicleIcon.setFont(new Font("SansSerif", Font.PLAIN, 72));
+        JLabel vehicleIcon = new JLabel("VEHICLE RENTAL");
+        vehicleIcon.setFont(new Font("SansSerif", Font.BOLD, 22));
+        vehicleIcon.setForeground(new Color(58, 127, 213));
         vehicleIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panel.add(welcome);
@@ -53,10 +54,10 @@ public class LoginPage extends JFrame {
         panel.add(vehicleIcon);
         panel.add(Box.createVerticalStrut(40));
 
-        addFeature(panel, "✓  Browse Available Vehicles");
-        addFeature(panel, "✓  Rent Vehicles Easily");
-        addFeature(panel, "✓  List Your Vehicle");
-        addFeature(panel, "✓  Manage Your Rentals");
+        addFeature(panel, "- Browse Available Vehicles");
+        addFeature(panel, "- Rent Vehicles Easily");
+        addFeature(panel, "- List Your Vehicle");
+        addFeature(panel, "- Manage Your Rentals");
 
         panel.add(Box.createVerticalGlue());
 
@@ -95,8 +96,9 @@ public class LoginPage extends JFrame {
         typeLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         typeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel brand = new JLabel("🚗  VRMS");
+        JLabel brand = new JLabel("VRMS");
         brand.setFont(new Font("SansSerif", Font.BOLD, 18));
+        brand.setForeground(new Color(58, 127, 213));
         brand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel heading = new JLabel("Sign In to Your Account");
@@ -137,7 +139,7 @@ public class LoginPage extends JFrame {
         card.add(loginButton);
         card.add(Box.createVerticalStrut(18));
 
-        JLabel signUp = createLink("Don't have an account?  Sign Up");
+        JLabel signUp = createLink("Don't have an account? Sign Up");
         signUp.setAlignmentX(Component.CENTER_ALIGNMENT);
         signUp.addMouseListener(new MouseAdapter() {
             @Override
@@ -198,7 +200,7 @@ public class LoginPage extends JFrame {
 
     private void togglePassword(JButton button) {
         if (passwordField.getEchoChar() == 0) {
-            passwordField.setEchoChar('•');
+            passwordField.setEchoChar('*');
             button.setText("Show");
         } else {
             passwordField.setEchoChar((char) 0);
