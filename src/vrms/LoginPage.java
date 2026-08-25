@@ -65,7 +65,7 @@ public class LoginPage extends JFrame {
         badge.setMaximumSize(new Dimension(254, 74));
         badge.setLayout(new BoxLayout(badge, BoxLayout.Y_AXIS));
 
-        JLabel vehicleText = new JLabel("CAR   |   BIKE   |   SUV");
+        JLabel vehicleText = new JLabel("CAR   |   BIKE   |   VAN");
         vehicleText.setFont(new Font("Segoe UI", Font.BOLD, 19));
         vehicleText.setForeground(BLUE);
         vehicleText.setAlignmentX(Component.CENTER_ALIGNMENT);
