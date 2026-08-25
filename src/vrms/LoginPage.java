@@ -102,7 +102,7 @@ public class LoginPage extends JFrame {
         row.setOpaque(false);
         row.setMaximumSize(new Dimension(254, 26));
         row.setPreferredSize(new Dimension(254, 26));
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel bullet = new JLabel("\u2022");
         bullet.setFont(new Font("Segoe UI", Font.BOLD, 16));
