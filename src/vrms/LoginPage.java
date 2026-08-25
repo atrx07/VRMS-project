@@ -49,7 +49,7 @@ public class LoginPage extends JFrame {
         brand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitle = new JLabel("Vehicle Rental Management System");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         subtitle.setForeground(MUTED);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -62,7 +62,7 @@ public class LoginPage extends JFrame {
 
         JPanel badge = new JPanel();
         badge.setOpaque(false);
-        badge.setMaximumSize(new Dimension(255, 74));
+        badge.setMaximumSize(new Dimension(254, 74));
         badge.setLayout(new BoxLayout(badge, BoxLayout.Y_AXIS));
 
         JLabel vehicleText = new JLabel("CAR   |   BIKE   |   SUV");
@@ -98,23 +98,25 @@ public class LoginPage extends JFrame {
     }
 
     private void addFeature(JPanel panel, String text) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel row = new JPanel(new BorderLayout(8, 0));
         row.setOpaque(false);
-        row.setMaximumSize(new Dimension(255, 30));
+        row.setMaximumSize(new Dimension(254, 26));
+        row.setPreferredSize(new Dimension(254, 26));
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel bullet = new JLabel("\u2022  ");
+        JLabel bullet = new JLabel("\u2022");
         bullet.setFont(new Font("Segoe UI", Font.BOLD, 16));
         bullet.setForeground(BLUE);
+        bullet.setPreferredSize(new Dimension(14, 26));
 
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         label.setForeground(DARK);
 
-        row.add(bullet);
-        row.add(label);
+        row.add(bullet, BorderLayout.WEST);
+        row.add(label, BorderLayout.CENTER);
         panel.add(row);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(9));
     }
 
     private JPanel createLoginArea() {
