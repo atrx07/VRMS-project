@@ -2,6 +2,7 @@ package vrms;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 
 public class AdminLoginPage extends JFrame {
@@ -40,10 +41,13 @@ public class AdminLoginPage extends JFrame {
         addField(root, "Password", passwordField);
 
         JButton loginButton = new JButton("LOGIN AS ADMIN");
+        loginButton.setUI(new BasicButtonUI());
         loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.setBackground(new Color(58, 127, 213));
         loginButton.setForeground(Color.WHITE);
+        loginButton.setOpaque(true);
+        loginButton.setBorderPainted(false);
         loginButton.setFocusPainted(false);
         loginButton.setFont(new Font("SansSerif", Font.BOLD, 12));
         loginButton.addActionListener(e -> {
