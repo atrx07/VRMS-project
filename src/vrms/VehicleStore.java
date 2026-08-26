@@ -36,12 +36,26 @@ public class VehicleStore {
     }
 
     public static List<String[]> getCatalogVehicles(int currentUserId) throws IOException {
+        return getCatalogVehicles();
+    }
+
+    public static List<String[]> getCatalogVehicles() throws IOException {
         List<String[]> result = new ArrayList<>();
 
         for (String[] vehicle : readVehicles()) {
-            if (vehicle[7].equals("APPROVED")
-                    && vehicle[6].equals("AVAILABLE")
-                    && Integer.parseInt(vehicle[1]) != currentUserId) {
+            if (vehicle[7].equals("APPROVED") && vehicle[6].equals("AVAILABLE")) {
+                result.add(vehicle);
+            }
+        }
+
+        return result;
+    }
+
+    public static List<String[]> getApprovedVehicles() throws IOException {
+        List<String[]> result = new ArrayList<>();
+
+        for (String[] vehicle : readVehicles()) {
+            if (vehicle[7].equals("APPROVED")) {
                 result.add(vehicle);
             }
         }
@@ -73,6 +87,19 @@ public class VehicleStore {
         return result;
     }
 
+    public static int getPendingCount() throws IOException {
+        return getPendingVehicles().size();
+    }
+
+    public static String[] getVehicleById(int vehicleId) throws IOException {
+        for (String[] vehicle : readVehicles()) {
+            if (Integer.parseInt(vehicle[0]) == vehicleId) {
+                return vehicle;
+            }
+        }
+        return null;
+    }
+
     public static boolean updateApproval(int vehicleId, String approvalStatus) throws IOException {
         List<String[]> vehicles = readVehicles();
         boolean found = false;
@@ -90,6 +117,44 @@ public class VehicleStore {
         }
 
         return found;
+    }
+
+    public static boolean updateAvailability(int vehicleId, String availability) throws IOException {
+        List<String[]> vehicles = readVehicles();
+        boolean found = false;
+
+        for (String[] vehicle : vehicles) {
+            if (Integer.parseInt(vehicle[0]) == vehicleId) {
+                vehicle[6] = availability;
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            rewriteVehicles(vehicles);
+        }
+
+        return found;
+    }
+
+    public static boolean deleteVehicle(int vehicleId) throws IOException {
+        List<String[]> vehicles = readVehicles();
+        boolean removed = false;
+
+        for (int i = 0; i < vehicles.size(); i++) {
+            if (Integer.parseInt(vehicles.get(i)[0]) == vehicleId) {
+                vehicles.remove(i);
+                removed = true;
+                break;
+            }
+        }
+
+        if (removed) {
+            rewriteVehicles(vehicles);
+        }
+
+        return removed;
     }
 
     private static List<String[]> readVehicles() throws IOException {
