@@ -73,13 +73,17 @@ public class CatalogPage extends JFrame {
         return scrollPane;
     }
 
-    private JPanel createVehicleCard(String[] vehicle) {
-        JPanel card = new JPanel(new BorderLayout(0, 14));
+    private JPanel createVehicleCard(String[] vehicle) throws IOException {
+        int ownerId = Integer.parseInt(vehicle[1]);
+        boolean ownVehicle = ownerId == Session.userId;
+        String ownerName = UserStore.findNameById(ownerId);
+
+        JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 205));
+        card.setPreferredSize(new Dimension(310, 255));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
-                new EmptyBorder(18, 18, 18, 18)
+                new EmptyBorder(18, 18, 16, 18)
         ));
 
         JPanel top = new JPanel(new BorderLayout());
@@ -97,6 +101,12 @@ public class CatalogPage extends JFrame {
         name.setForeground(UIColors.TEXT_DARK);
         name.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        String ownerText = ownVehicle ? "Listed by " + ownerName + " (You)" : "Listed by " + ownerName;
+        JLabel owner = new JLabel(ownerText);
+        owner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        owner.setForeground(UIColors.TEXT_MUTED);
+        owner.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel registration = new JLabel("Registration  " + vehicle[4]);
         registration.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         registration.setForeground(UIColors.TEXT_MUTED);
@@ -107,20 +117,28 @@ public class CatalogPage extends JFrame {
         rate.setForeground(UIColors.PRIMARY);
         rate.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel note = new JLabel("Approved listing  |  Ready to rent");
-        note.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        note.setForeground(UIColors.TEXT_MUTED);
-        note.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         details.add(name);
-        details.add(Box.createVerticalStrut(8));
+        details.add(Box.createVerticalStrut(7));
+        details.add(owner);
+        details.add(Box.createVerticalStrut(4));
         details.add(registration);
-        details.add(Box.createVerticalStrut(18));
+        details.add(Box.createVerticalStrut(14));
         details.add(rate);
-        details.add(Box.createVerticalStrut(5));
-        details.add(note);
-
         card.add(details, BorderLayout.CENTER);
+
+        JButton rentButton;
+        if (ownVehicle) {
+            rentButton = createSecondaryButton("Your Listing");
+            rentButton.setEnabled(false);
+        } else {
+            rentButton = createPrimaryButton("Rent Vehicle");
+            rentButton.addActionListener(e -> {
+                new RentVehiclePage(vehicle).setVisible(true);
+                dispose();
+            });
+        }
+        card.add(rentButton, BorderLayout.SOUTH);
+
         return card;
     }
 
@@ -140,6 +158,12 @@ public class CatalogPage extends JFrame {
 
         JButton refreshButton = createSecondaryButton("Refresh");
         refreshButton.addActionListener(e -> loadVehicles());
+
+        JButton rentalsButton = createSecondaryButton("My Rentals");
+        rentalsButton.addActionListener(e -> {
+            new MyRentalsPage().setVisible(true);
+            dispose();
+        });
 
         JButton myVehiclesButton = createSecondaryButton("My Vehicles");
         myVehiclesButton.addActionListener(e -> {
@@ -161,6 +185,7 @@ public class CatalogPage extends JFrame {
         });
 
         bar.add(refreshButton);
+        bar.add(rentalsButton);
         bar.add(myVehiclesButton);
         bar.add(listButton);
         bar.add(logoutButton);
@@ -171,12 +196,12 @@ public class CatalogPage extends JFrame {
         cardGrid.removeAll();
 
         try {
-            List<String[]> vehicles = VehicleStore.getCatalogVehicles(Session.userId);
+            List<String[]> vehicles = VehicleStore.getCatalogVehicles();
 
             if (vehicles.isEmpty()) {
                 JPanel empty = createEmptyState(
                         "No vehicles available right now",
-                        "Approved vehicles listed by other customers will appear here."
+                        "Approved and available vehicle listings will appear here."
                 );
                 cardGrid.setLayout(new BorderLayout());
                 cardGrid.add(empty, BorderLayout.CENTER);
