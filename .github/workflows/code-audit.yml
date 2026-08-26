@@ -1,0 +1,61 @@
+name: Code Audit
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  build-audit:
+    name: Build audit (Java)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compile source
+        run: |
+          mkdir -p out
+          javac -d out src/vrms/*.java
+
+  codeql:
+    name: CodeQL security audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build for CodeQL
+        run: |
+          mkdir -p out
+          javac -d out src/vrms/*.java
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
