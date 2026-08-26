@@ -6,6 +6,7 @@ import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 public class RegisterPage extends JFrame {
 
@@ -13,7 +14,7 @@ public class RegisterPage extends JFrame {
         setTitle("VRMS - Customer Registration");
         setSize(460, 510);
         setLocationRelativeTo(null);
-        
+
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -30,12 +31,10 @@ public class RegisterPage extends JFrame {
         root.setBorder(new EmptyBorder(25, 45, 20, 45));
         setContentPane(root);
 
-        // Main Title (H1)
         JLabel title = new JLabel("Create Customer Account");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Subtitle (H3 equivalent) smaller than title but larger than labels
         JLabel subtitle = new JLabel("Register to rent or list vehicles on VRMS");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(UIColors.TEXT_MUTED);
@@ -58,7 +57,7 @@ public class RegisterPage extends JFrame {
 
         JButton registerButton = new JButton("REGISTER");
         registerButton.setUI(new BasicButtonUI());
-        registerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36)); 
+        registerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerButton.setBackground(UIColors.PRIMARY);
         registerButton.setForeground(Color.WHITE);
@@ -67,24 +66,43 @@ public class RegisterPage extends JFrame {
         registerButton.setFocusPainted(false);
         registerButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         registerButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        
+
         registerButton.addActionListener(e -> {
-            if (nameField.getText().trim().isEmpty()
-                    || emailField.getText().trim().isEmpty()
-                    || phoneField.getText().trim().isEmpty()
-                    || passwordField.getPassword().length == 0) {
+            String name = nameField.getText().trim();
+            String email = emailField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String password = new String(passwordField.getPassword());
+
+            if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
                         "Please fill in all fields.",
                         "Missing Details",
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            
-            // IMPORTANT: Connect your database insert/save logic here
-            JOptionPane.showMessageDialog(this,
-                    "Registration UI is ready. Database saving to follow.",
-                    "VRMS",
-                    JOptionPane.INFORMATION_MESSAGE);
+
+            try {
+                String error = UserStore.registerCustomer(name, email, phone, password);
+                if (error != null) {
+                    JOptionPane.showMessageDialog(this,
+                            error,
+                            "Registration Failed",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(this,
+                        "Account created successfully. You can now log in.",
+                        "Registration Complete",
+                        JOptionPane.INFORMATION_MESSAGE);
+                new LoginPage().setVisible(true);
+                dispose();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Could not save local account data.\n" + ex.getMessage(),
+                        "File Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         root.add(Box.createVerticalStrut(5));
@@ -113,11 +131,11 @@ public class RegisterPage extends JFrame {
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
-        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34)); 
-        
+        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         wrapper.add(field, BorderLayout.CENTER);
-        
+
         JPanel labelWrapper = new JPanel(new BorderLayout());
         labelWrapper.setOpaque(false);
         labelWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
