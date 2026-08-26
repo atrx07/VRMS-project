@@ -1,6 +1,6 @@
 # VRMS - Vehicle Rental Management System
 
-A simple Java Swing micro project for managing vehicle rentals.
+A Java Swing micro project for managing vehicle rentals.
 
 ## Current milestone
 
@@ -11,12 +11,19 @@ Implemented:
 - Separate admin login
 - Persistent local user accounts
 - Simple session state after login
-- Customer vehicle catalog
+- Card-based customer vehicle catalog
+- Vehicle owner username shown on catalog cards
 - List a vehicle for rent
 - My Vehicles page
-- Admin dashboard for pending vehicle approvals
+- Rent Vehicle page with date-based total calculation
+- My Rentals page
+- Local rental records and vehicle availability updates
+- Admin vehicle catalog
+- Pending approval notification badge
+- Separate pending approvals page
 - Approve or reject vehicle listings
-- Local runtime files for users, vehicles, and future rentals
+- Admin delete action for available catalog vehicles
+- Local runtime files for users, vehicles, and rentals
 
 ## Local data
 
@@ -29,7 +36,7 @@ data/
 └── rentals.txt
 ```
 
-The `data/` directory is ignored by Git, so local accounts and vehicle records are not committed to the repository.
+The `data/` directory is ignored by Git, so local accounts, vehicle records, and rentals are not committed to the repository.
 
 A default admin account is created automatically:
 
@@ -38,7 +45,11 @@ Email: admin@vrms.com
 Password: admin123
 ```
 
-Customers register normally through the registration page. Vehicle listings are saved with `PENDING` approval status. An admin can approve them, after which they appear in the catalog for other customers.
+Customers register normally through the registration page. Vehicle listings begin with `PENDING` approval status. After admin approval, the listing appears in the customer catalog and the admin catalog.
+
+All approved and available vehicles are visible in the customer catalog, including the current customer's own listings. The owner username is shown on every card. A customer's own vehicle is visible but cannot be rented by that same customer.
+
+When another customer confirms a rental, the rental is stored in `rentals.txt` and the vehicle changes from `AVAILABLE` to `RENTED`, removing it from the available customer catalog.
 
 ## Run
 
