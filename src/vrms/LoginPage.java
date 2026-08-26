@@ -9,12 +9,6 @@ import java.awt.event.MouseEvent;
 
 public class LoginPage extends JFrame {
 
-    private static final Color BLUE = new Color(58, 127, 213);
-    private static final Color DARK = new Color(35, 45, 55);
-    private static final Color MUTED = new Color(90, 98, 108);
-    private static final Color LEFT_BG = new Color(226, 239, 252);
-    private static final Color PAGE_BG = new Color(248, 251, 254);
-
     private final JTextField emailField = new JTextField();
     private final JPasswordField passwordField = new JPasswordField();
 
@@ -34,23 +28,26 @@ public class LoginPage extends JFrame {
     private JPanel createWelcomePanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(330, 550));
-        panel.setBackground(LEFT_BG);
+        panel.setBackground(UIColors.BG_LEFT);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(new EmptyBorder(42, 38, 30, 38));
 
+        // H2 equivalent - smaller than the brand name to establish hierarchy
         JLabel welcome = new JLabel("Welcome to");
-        welcome.setFont(new Font("Segoe UI", Font.PLAIN, 26));
-        welcome.setForeground(DARK);
+        welcome.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        welcome.setForeground(UIColors.TEXT_DARK);
         welcome.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Hero Brand - Largest element on the left side
         JLabel brand = new JLabel("VRMS");
         brand.setFont(new Font("Segoe UI", Font.BOLD, 28));
         brand.setForeground(Color.BLACK);
         brand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Small context text
         JLabel subtitle = new JLabel("Vehicle Rental Management System");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        subtitle.setForeground(MUTED);
+        subtitle.setForeground(UIColors.TEXT_MUTED);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panel.add(welcome);
@@ -66,13 +63,13 @@ public class LoginPage extends JFrame {
         badge.setLayout(new BoxLayout(badge, BoxLayout.Y_AXIS));
 
         JLabel vehicleText = new JLabel("CAR   |   BIKE   |   VAN");
-        vehicleText.setFont(new Font("Segoe UI", Font.BOLD, 19));
-        vehicleText.setForeground(BLUE);
+        vehicleText.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        vehicleText.setForeground(UIColors.PRIMARY);
         vehicleText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel rentalText = new JLabel("VEHICLE RENTAL");
-        rentalText.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        rentalText.setForeground(new Color(70, 115, 160));
+        rentalText.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        rentalText.setForeground(UIColors.SECONDARY);
         rentalText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         badge.add(vehicleText);
@@ -89,8 +86,8 @@ public class LoginPage extends JFrame {
         panel.add(Box.createVerticalGlue());
 
         JLabel footer = new JLabel("VRMS");
-        footer.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        footer.setForeground(new Color(70, 115, 160));
+        footer.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        footer.setForeground(UIColors.SECONDARY);
         footer.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(footer);
 
@@ -105,13 +102,14 @@ public class LoginPage extends JFrame {
         row.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel bullet = new JLabel("\u2022");
-        bullet.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        bullet.setForeground(BLUE);
+        bullet.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        bullet.setForeground(UIColors.PRIMARY);
         bullet.setPreferredSize(new Dimension(14, 26));
 
+        // Standard body size for list items
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        label.setForeground(DARK);
+        label.setForeground(UIColors.TEXT_DARK);
 
         row.add(bullet, BorderLayout.WEST);
         row.add(label, BorderLayout.CENTER);
@@ -121,7 +119,7 @@ public class LoginPage extends JFrame {
 
     private JPanel createLoginArea() {
         JPanel area = new JPanel(new BorderLayout());
-        area.setBackground(PAGE_BG);
+        area.setBackground(UIColors.BG_PAGE);
         area.setBorder(new EmptyBorder(40, 45, 18, 32));
 
         JPanel centerHolder = new JPanel(new GridBagLayout());
@@ -147,78 +145,78 @@ public class LoginPage extends JFrame {
 
     private JPanel createLoginCard() {
         JPanel card = new JPanel(new GridBagLayout());
-        card.setPreferredSize(new Dimension(340, 390));
+        card.setPreferredSize(new Dimension(360, 420));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(218, 223, 230)),
-                new EmptyBorder(22, 24, 22, 24)
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(25, 30, 25, 30)
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
-        gbc.insets = new Insets(0, 0, 0, 0);
-
-        JLabel typeLabel = centeredLabel("CUSTOMER LOGIN", Font.BOLD, 13, Color.BLACK);
         gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        // Tagline - smallest
+        JLabel typeLabel = centeredLabel("CUSTOMER LOGIN", Font.BOLD, 11, Color.BLACK);
         card.add(typeLabel, gbc);
 
-        JLabel brand = centeredLabel("VRMS", Font.BOLD, 18, BLUE);
         gbc.gridy++;
-        gbc.insets = new Insets(15, 0, 0, 0);
+        gbc.insets = new Insets(8, 0, 0, 0);
+        // H1 equivalent inside the card
+        JLabel brand = centeredLabel("VRMS", Font.BOLD, 24, UIColors.PRIMARY);
         card.add(brand, gbc);
 
-        JLabel heading = centeredLabel("Sign In to Your Account", Font.PLAIN, 18, Color.BLACK);
         gbc.gridy++;
-        gbc.insets = new Insets(12, 0, 19, 0);
+        gbc.insets = new Insets(4, 0, 25, 0);
+        // H2 equivalent
+        JLabel heading = centeredLabel("Sign In to Your Account", Font.PLAIN, 16, Color.BLACK);
         card.add(heading, gbc);
 
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(0, 0, 5, 0);
         gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 5, 0);
         card.add(createFieldLabel("Email"), gbc);
 
-        emailField.setPreferredSize(new Dimension(280, 34));
-        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 13, 0);
+        gbc.insets = new Insets(0, 0, 15, 0);
+        emailField.setPreferredSize(new Dimension(280, 38));
+        // Input text scaled down slightly to sit visually below H2/H1
+        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         card.add(emailField, gbc);
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         card.add(createFieldLabel("Password"), gbc);
 
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 25, 0);
+        
+        JPanel passWrapper = new JPanel(new BorderLayout(8, 0));
+        passWrapper.setOpaque(false);
+        passWrapper.setPreferredSize(new Dimension(280, 38));
+        
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        passwordField.setEchoChar('\u2022');
-
+        passwordField.setEchoChar('\u2022'); 
+        
         JButton showButton = createSecondaryButton("Show");
+        showButton.setPreferredSize(new Dimension(65, 38));
         showButton.addActionListener(e -> togglePassword(showButton));
 
+        passWrapper.add(passwordField, BorderLayout.CENTER);
+        passWrapper.add(showButton, BorderLayout.EAST);
+        
+        card.add(passWrapper, gbc);
+
         gbc.gridy++;
-        gbc.gridwidth = 1;
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 0, 18, 8);
-        card.add(passwordField, gbc);
-
-        gbc.gridx = 1;
-        gbc.weightx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(0, 0, 18, 0);
-        card.add(showButton, gbc);
-
+        gbc.insets = new Insets(0, 0, 20, 0);
         JButton loginButton = createPrimaryButton("LOG IN");
+        loginButton.setPreferredSize(new Dimension(280, 42));
         loginButton.addActionListener(e -> login());
-        gbc.gridx = 0;
-        gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 0, 17, 0);
         card.add(loginButton, gbc);
 
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 0, 0);
         JLabel signUp = createLink("Don't have an account? Sign Up");
         signUp.setHorizontalAlignment(SwingConstants.CENTER);
         signUp.addMouseListener(new MouseAdapter() {
@@ -228,9 +226,6 @@ public class LoginPage extends JFrame {
                 dispose();
             }
         });
-
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 0, 0);
         card.add(signUp, gbc);
 
         return card;
@@ -243,45 +238,44 @@ public class LoginPage extends JFrame {
         return label;
     }
 
+    // Standardized label size smaller than input text
     private JLabel createFieldLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        label.setForeground(DARK);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setForeground(UIColors.TEXT_DARK);
         return label;
     }
 
     private JButton createPrimaryButton(String text) {
         JButton button = new JButton(text);
         button.setUI(new BasicButtonUI());
-        button.setPreferredSize(new Dimension(280, 36));
-        button.setBackground(BLUE);
+        button.setBackground(UIColors.PRIMARY);
         button.setForeground(Color.WHITE);
         button.setOpaque(true);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13)); // Matches input size
         return button;
     }
 
     private JButton createSecondaryButton(String text) {
         JButton button = new JButton(text);
         button.setUI(new BasicButtonUI());
-        button.setPreferredSize(new Dimension(58, 34));
-        button.setBackground(new Color(242, 245, 248));
-        button.setForeground(DARK);
+        button.setBackground(UIColors.BG_SECONDARY_BTN);
+        button.setForeground(UIColors.TEXT_DARK);
         button.setOpaque(true);
-        button.setBorder(BorderFactory.createLineBorder(new Color(205, 211, 218)));
+        button.setBorder(BorderFactory.createLineBorder(UIColors.BORDER_DARK));
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 11)); // Small support size
         return button;
     }
 
     private JLabel createLink(String text) {
         JLabel label = new JLabel("<html><u>" + text + "</u></html>");
-        label.setForeground(new Color(54, 122, 196));
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        label.setForeground(UIColors.LINK);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 11)); // Link sized appropriately
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return label;
     }
@@ -308,8 +302,9 @@ public class LoginPage extends JFrame {
             return;
         }
 
+        // IMPORTANT: Connect your backend database verification here
         JOptionPane.showMessageDialog(this,
-                "Login page is ready. Database authentication will be connected in the next step.",
+                "Login page is ready. Database authentication to follow.",
                 "VRMS",
                 JOptionPane.INFORMATION_MESSAGE);
     }

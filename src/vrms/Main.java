@@ -7,9 +7,10 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
+                // Apply system look and feel for a native UI experience
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {
-                // The default Swing look and feel is good enough as a fallback.
+                // Fallback to default Swing look and feel
             }
 
             new LoginPage().setVisible(true);

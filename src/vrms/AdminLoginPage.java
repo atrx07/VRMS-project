@@ -4,52 +4,66 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class AdminLoginPage extends JFrame {
 
     public AdminLoginPage() {
         setTitle("VRMS - Admin Login");
-        setSize(460, 420);
+        setSize(400, 360); 
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new LoginPage().setVisible(true);
+                dispose();
+            }
+        });
         setResizable(false);
 
         JPanel root = new JPanel();
-        root.setBackground(new Color(248, 251, 254));
+        root.setBackground(UIColors.BG_PAGE);
         root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        root.setBorder(new EmptyBorder(45, 55, 40, 55));
+        root.setBorder(new EmptyBorder(25, 45, 20, 45));
         setContentPane(root);
 
+        // Header - strictly the largest element on the page
         JLabel title = new JLabel("ADMIN LOGIN");
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Sub-brand element - safely smaller than the main title
         JLabel brand = new JLabel("VRMS");
-        brand.setFont(new Font("SansSerif", Font.BOLD, 16));
-        brand.setForeground(new Color(58, 127, 213));
+        brand.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        brand.setForeground(UIColors.PRIMARY);
         brand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JTextField emailField = new JTextField();
         JPasswordField passwordField = new JPasswordField();
 
         root.add(title);
-        root.add(Box.createVerticalStrut(8));
+        root.add(Box.createVerticalStrut(4));
         root.add(brand);
-        root.add(Box.createVerticalStrut(28));
+        root.add(Box.createVerticalStrut(20));
 
         addField(root, "Admin Email", emailField);
         addField(root, "Password", passwordField);
 
         JButton loginButton = new JButton("LOGIN AS ADMIN");
         loginButton.setUI(new BasicButtonUI());
-        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36)); 
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginButton.setBackground(new Color(58, 127, 213));
+        loginButton.setBackground(UIColors.PRIMARY);
         loginButton.setForeground(Color.WHITE);
         loginButton.setOpaque(true);
         loginButton.setBorderPainted(false);
         loginButton.setFocusPainted(false);
-        loginButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        
         loginButton.addActionListener(e -> {
             if (emailField.getText().trim().isEmpty() || passwordField.getPassword().length == 0) {
                 JOptionPane.showMessageDialog(this,
@@ -58,20 +72,26 @@ public class AdminLoginPage extends JFrame {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
+            
+            // IMPORTANT: Connect your backend admin authentication here
             JOptionPane.showMessageDialog(this,
-                    "Admin login UI is ready. Authentication will be connected in the next step.",
+                    "Admin login UI is ready. Authentication to follow.",
                     "VRMS",
                     JOptionPane.INFORMATION_MESSAGE);
         });
 
-        root.add(Box.createVerticalStrut(8));
+        root.add(Box.createVerticalStrut(5));
         root.add(loginButton);
-        root.add(Box.createVerticalStrut(18));
+        root.add(Box.createVerticalStrut(15));
 
         JButton backButton = new JButton("Back to Customer Login");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false); 
+        backButton.setBorderPainted(false);
+        backButton.setForeground(UIColors.LINK);
+        backButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backButton.addActionListener(e -> {
             new LoginPage().setVisible(true);
             dispose();
@@ -80,16 +100,27 @@ public class AdminLoginPage extends JFrame {
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
+        // Label sized smaller than the actual input fields
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setForeground(UIColors.TEXT_DARK);
+        
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34)); 
+        
+        // Input matching standard body size (13pt)
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        wrapper.add(field, BorderLayout.CENTER);
+        
+        JPanel labelWrapper = new JPanel(new BorderLayout());
+        labelWrapper.setOpaque(false);
+        labelWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+        labelWrapper.add(label, BorderLayout.WEST);
 
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
-        field.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        panel.add(label);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(field);
-        panel.add(Box.createVerticalStrut(16));
+        panel.add(labelWrapper);
+        panel.add(Box.createVerticalStrut(2));
+        panel.add(wrapper);
+        panel.add(Box.createVerticalStrut(12));
     }
 }
