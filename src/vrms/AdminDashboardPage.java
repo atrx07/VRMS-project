@@ -9,9 +9,10 @@ import java.util.List;
 
 public class AdminDashboardPage extends JFrame {
     private final JPanel cardGrid = new JPanel(new GridLayout(0, 3, 16, 16));
+    private final JLabel pendingBadge = new JLabel();
 
     public AdminDashboardPage() {
-        setTitle("VRMS - Admin Dashboard");
+        setTitle("VRMS - Admin Vehicle Catalog");
         setSize(1100, 680);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,7 +27,7 @@ public class AdminDashboardPage extends JFrame {
         root.add(createCardArea(), BorderLayout.CENTER);
         root.add(createBottomBar(), BorderLayout.SOUTH);
 
-        loadPendingVehicles();
+        loadDashboard();
     }
 
     private JPanel createHeader() {
@@ -37,11 +38,11 @@ public class AdminDashboardPage extends JFrame {
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("Pending Vehicle Approvals");
+        JLabel title = new JLabel("Vehicle Catalog");
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(UIColors.TEXT_DARK);
 
-        JLabel subtitle = new JLabel("Review customer listings before they enter the public catalog");
+        JLabel subtitle = new JLabel("Admin view  |  Approved listings visible to customers");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         subtitle.setForeground(UIColors.TEXT_MUTED);
 
@@ -76,10 +77,11 @@ public class AdminDashboardPage extends JFrame {
     private JPanel createVehicleCard(String[] vehicle) throws IOException {
         int vehicleId = Integer.parseInt(vehicle[0]);
         int ownerId = Integer.parseInt(vehicle[1]);
+        boolean available = vehicle[6].equals("AVAILABLE");
 
-        JPanel card = new JPanel(new BorderLayout(0, 14));
+        JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 265));
+        card.setPreferredSize(new Dimension(310, 255));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(18, 18, 16, 18)
@@ -88,7 +90,10 @@ public class AdminDashboardPage extends JFrame {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
         top.add(createBadge(vehicle[3].toUpperCase(), UIColors.BG_LEFT, UIColors.PRIMARY), BorderLayout.WEST);
-        top.add(createBadge("PENDING", UIColors.WARNING_BG, UIColors.WARNING), BorderLayout.EAST);
+        top.add(createBadge(
+                vehicle[6],
+                available ? UIColors.SUCCESS_BG : UIColors.WARNING_BG,
+                available ? UIColors.SUCCESS : UIColors.WARNING), BorderLayout.EAST);
         card.add(top, BorderLayout.NORTH);
 
         JPanel details = new JPanel();
@@ -100,7 +105,7 @@ public class AdminDashboardPage extends JFrame {
         name.setForeground(UIColors.TEXT_DARK);
         name.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel owner = new JLabel("Listed by  " + UserStore.findNameById(ownerId));
+        JLabel owner = new JLabel("Listed by " + UserStore.findNameById(ownerId));
         owner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         owner.setForeground(UIColors.TEXT_MUTED);
         owner.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -120,22 +125,16 @@ public class AdminDashboardPage extends JFrame {
         details.add(owner);
         details.add(Box.createVerticalStrut(4));
         details.add(registration);
-        details.add(Box.createVerticalStrut(16));
+        details.add(Box.createVerticalStrut(14));
         details.add(rate);
         card.add(details, BorderLayout.CENTER);
 
-        JPanel actions = new JPanel(new GridLayout(1, 2, 8, 0));
-        actions.setOpaque(false);
-
-        JButton rejectButton = createDangerButton("Reject");
-        rejectButton.addActionListener(e -> updateVehicle(vehicleId, "REJECTED"));
-
-        JButton approveButton = createPrimaryButton("Approve");
-        approveButton.addActionListener(e -> updateVehicle(vehicleId, "APPROVED"));
-
-        actions.add(rejectButton);
-        actions.add(approveButton);
-        card.add(actions, BorderLayout.SOUTH);
+        JButton deleteButton = createDangerButton(available ? "Delete Vehicle" : "Cannot Delete While Rented");
+        deleteButton.setEnabled(available);
+        if (available) {
+            deleteButton.addActionListener(e -> deleteVehicle(vehicleId, vehicle[2]));
+        }
+        card.add(deleteButton, BorderLayout.SOUTH);
 
         return card;
     }
@@ -155,7 +154,25 @@ public class AdminDashboardPage extends JFrame {
         bar.setOpaque(false);
 
         JButton refreshButton = createSecondaryButton("Refresh");
-        refreshButton.addActionListener(e -> loadPendingVehicles());
+        refreshButton.addActionListener(e -> loadDashboard());
+
+        JButton pendingButton = createSecondaryButton("Pending Requests");
+        pendingButton.addActionListener(e -> {
+            new AdminApprovalPage().setVisible(true);
+            dispose();
+        });
+
+        pendingBadge.setOpaque(true);
+        pendingBadge.setBackground(UIColors.DANGER);
+        pendingBadge.setForeground(Color.WHITE);
+        pendingBadge.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        pendingBadge.setHorizontalAlignment(SwingConstants.CENTER);
+        pendingBadge.setBorder(new EmptyBorder(4, 7, 4, 7));
+
+        JPanel pendingControl = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        pendingControl.setOpaque(false);
+        pendingControl.add(pendingButton);
+        pendingControl.add(pendingBadge);
 
         JButton logoutButton = createSecondaryButton("Logout");
         logoutButton.addActionListener(e -> {
@@ -165,15 +182,16 @@ public class AdminDashboardPage extends JFrame {
         });
 
         bar.add(refreshButton);
+        bar.add(pendingControl);
         bar.add(logoutButton);
         return bar;
     }
 
-    private void loadPendingVehicles() {
+    private void loadDashboard() {
         cardGrid.removeAll();
 
         try {
-            List<String[]> vehicles = VehicleStore.getPendingVehicles();
+            List<String[]> vehicles = VehicleStore.getApprovedVehicles();
 
             if (vehicles.isEmpty()) {
                 cardGrid.setLayout(new BorderLayout());
@@ -184,9 +202,13 @@ public class AdminDashboardPage extends JFrame {
                     cardGrid.add(createVehicleCard(vehicle));
                 }
             }
+
+            int pendingCount = VehicleStore.getPendingCount();
+            pendingBadge.setText(String.valueOf(pendingCount));
+            pendingBadge.setVisible(pendingCount > 0);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Could not load pending vehicles.\n" + ex.getMessage(),
+                    "Could not load vehicle data.\n" + ex.getMessage(),
                     "File Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -201,12 +223,12 @@ public class AdminDashboardPage extends JFrame {
         panel.setBorder(new EmptyBorder(90, 20, 90, 20));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("All caught up");
+        JLabel title = new JLabel("No approved vehicles yet");
         title.setFont(new Font("Segoe UI", Font.BOLD, 18));
         title.setForeground(UIColors.TEXT_DARK);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subtitle = new JLabel("There are no pending vehicle listings to review.");
+        JLabel subtitle = new JLabel("Approve pending listings and they will appear here.");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(UIColors.TEXT_MUTED);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -217,33 +239,26 @@ public class AdminDashboardPage extends JFrame {
         return panel;
     }
 
-    private void updateVehicle(int vehicleId, String status) {
+    private void deleteVehicle(int vehicleId, String vehicleName) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Delete " + vehicleName + " from the catalog?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
         try {
-            VehicleStore.updateApproval(vehicleId, status);
-            JOptionPane.showMessageDialog(this,
-                    "Vehicle " + status.toLowerCase() + ".",
-                    "VRMS",
-                    JOptionPane.INFORMATION_MESSAGE);
-            loadPendingVehicles();
+            VehicleStore.deleteVehicle(vehicleId);
+            loadDashboard();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Could not update vehicle data.\n" + ex.getMessage(),
+                    "Could not delete vehicle.\n" + ex.getMessage(),
                     "File Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private JButton createPrimaryButton(String text) {
-        JButton button = new JButton(text);
-        button.setUI(new BasicButtonUI());
-        button.setBackground(UIColors.PRIMARY);
-        button.setForeground(Color.WHITE);
-        button.setOpaque(true);
-        button.setBorder(new EmptyBorder(9, 15, 9, 15));
-        button.setFocusPainted(false);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        return button;
     }
 
     private JButton createDangerButton(String text) {
