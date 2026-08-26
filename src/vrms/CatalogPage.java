@@ -3,33 +3,27 @@ package vrms;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
+import java.util.List;
 
 public class CatalogPage extends JFrame {
-    private final DefaultTableModel tableModel = new DefaultTableModel(
-            new String[]{"ID", "Vehicle", "Type", "Registration", "Rate / Day", "Status"}, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
+    private final JPanel cardGrid = new JPanel(new GridLayout(0, 3, 16, 16));
 
     public CatalogPage() {
         setTitle("VRMS - Vehicle Catalog");
-        setSize(950, 560);
+        setSize(1100, 680);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        JPanel root = new JPanel(new BorderLayout(0, 18));
+        JPanel root = new JPanel(new BorderLayout(0, 20));
         root.setBackground(UIColors.BG_PAGE);
-        root.setBorder(new EmptyBorder(22, 28, 24, 28));
+        root.setBorder(new EmptyBorder(24, 32, 24, 32));
         setContentPane(root);
 
         root.add(createHeader(), BorderLayout.NORTH);
-        root.add(createTableArea(), BorderLayout.CENTER);
+        root.add(createCardArea(), BorderLayout.CENTER);
         root.add(createBottomBar(), BorderLayout.SOUTH);
 
         loadVehicles();
@@ -44,19 +38,19 @@ public class CatalogPage extends JFrame {
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel("Available Vehicles");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(UIColors.TEXT_DARK);
 
-        JLabel welcome = new JLabel("Welcome, " + Session.name);
+        JLabel welcome = new JLabel("Welcome, " + Session.name + "  |  Pick a vehicle that works for you");
         welcome.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         welcome.setForeground(UIColors.TEXT_MUTED);
 
         textPanel.add(title);
-        textPanel.add(Box.createVerticalStrut(3));
+        textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(welcome);
 
         JLabel brand = new JLabel("VRMS");
-        brand.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        brand.setFont(new Font("Segoe UI", Font.BOLD, 20));
         brand.setForeground(UIColors.PRIMARY);
 
         header.add(textPanel, BorderLayout.WEST);
@@ -64,20 +58,84 @@ public class CatalogPage extends JFrame {
         return header;
     }
 
-    private JScrollPane createTableArea() {
-        JTable table = new JTable(tableModel);
-        table.setRowHeight(30);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    private JScrollPane createCardArea() {
+        cardGrid.setOpaque(false);
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(UIColors.BORDER));
+        JPanel holder = new JPanel(new BorderLayout());
+        holder.setBackground(UIColors.BG_PAGE);
+        holder.add(cardGrid, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(holder);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(UIColors.BG_PAGE);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         return scrollPane;
     }
 
+    private JPanel createVehicleCard(String[] vehicle) {
+        JPanel card = new JPanel(new BorderLayout(0, 14));
+        card.setBackground(UIColors.CARD_BG);
+        card.setPreferredSize(new Dimension(310, 205));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(18, 18, 18, 18)
+        ));
+
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(createBadge(vehicle[3].toUpperCase(), UIColors.BG_LEFT, UIColors.PRIMARY), BorderLayout.WEST);
+        top.add(createBadge("AVAILABLE", UIColors.SUCCESS_BG, UIColors.SUCCESS), BorderLayout.EAST);
+        card.add(top, BorderLayout.NORTH);
+
+        JPanel details = new JPanel();
+        details.setOpaque(false);
+        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
+
+        JLabel name = new JLabel(vehicle[2]);
+        name.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        name.setForeground(UIColors.TEXT_DARK);
+        name.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel registration = new JLabel("Registration  " + vehicle[4]);
+        registration.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        registration.setForeground(UIColors.TEXT_MUTED);
+        registration.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel rate = new JLabel("Rs. " + vehicle[5] + " / day");
+        rate.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        rate.setForeground(UIColors.PRIMARY);
+        rate.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel note = new JLabel("Approved listing  |  Ready to rent");
+        note.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        note.setForeground(UIColors.TEXT_MUTED);
+        note.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        details.add(name);
+        details.add(Box.createVerticalStrut(8));
+        details.add(registration);
+        details.add(Box.createVerticalStrut(18));
+        details.add(rate);
+        details.add(Box.createVerticalStrut(5));
+        details.add(note);
+
+        card.add(details, BorderLayout.CENTER);
+        return card;
+    }
+
+    private JLabel createBadge(String text, Color background, Color foreground) {
+        JLabel badge = new JLabel(text);
+        badge.setOpaque(true);
+        badge.setBackground(background);
+        badge.setForeground(foreground);
+        badge.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        badge.setBorder(new EmptyBorder(5, 9, 5, 9));
+        return badge;
+    }
+
     private JPanel createBottomBar() {
-        JPanel bar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        JPanel bar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         bar.setOpaque(false);
 
         JButton refreshButton = createSecondaryButton("Refresh");
@@ -110,18 +168,23 @@ public class CatalogPage extends JFrame {
     }
 
     private void loadVehicles() {
-        tableModel.setRowCount(0);
+        cardGrid.removeAll();
 
         try {
-            for (String[] vehicle : VehicleStore.getCatalogVehicles(Session.userId)) {
-                tableModel.addRow(new Object[]{
-                        vehicle[0],
-                        vehicle[2],
-                        vehicle[3],
-                        vehicle[4],
-                        "Rs. " + vehicle[5],
-                        vehicle[6]
-                });
+            List<String[]> vehicles = VehicleStore.getCatalogVehicles(Session.userId);
+
+            if (vehicles.isEmpty()) {
+                JPanel empty = createEmptyState(
+                        "No vehicles available right now",
+                        "Approved vehicles listed by other customers will appear here."
+                );
+                cardGrid.setLayout(new BorderLayout());
+                cardGrid.add(empty, BorderLayout.CENTER);
+            } else {
+                cardGrid.setLayout(new GridLayout(0, 3, 16, 16));
+                for (String[] vehicle : vehicles) {
+                    cardGrid.add(createVehicleCard(vehicle));
+                }
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
@@ -129,6 +192,31 @@ public class CatalogPage extends JFrame {
                     "File Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+
+        cardGrid.revalidate();
+        cardGrid.repaint();
+    }
+
+    private JPanel createEmptyState(String titleText, String subtitleText) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(90, 20, 90, 20));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel(titleText);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setForeground(UIColors.TEXT_DARK);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel(subtitleText);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setForeground(UIColors.TEXT_MUTED);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(6));
+        panel.add(subtitle);
+        return panel;
     }
 
     private JButton createPrimaryButton(String text) {
@@ -137,7 +225,7 @@ public class CatalogPage extends JFrame {
         button.setBackground(UIColors.PRIMARY);
         button.setForeground(Color.WHITE);
         button.setOpaque(true);
-        button.setBorderPainted(false);
+        button.setBorder(new EmptyBorder(9, 16, 9, 16));
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         button.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -150,7 +238,10 @@ public class CatalogPage extends JFrame {
         button.setBackground(UIColors.BG_SECONDARY_BTN);
         button.setForeground(UIColors.TEXT_DARK);
         button.setOpaque(true);
-        button.setBorder(BorderFactory.createLineBorder(UIColors.BORDER_DARK));
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER_DARK),
+                new EmptyBorder(8, 14, 8, 14)
+        ));
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
