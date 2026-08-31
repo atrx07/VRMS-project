@@ -1,5 +1,6 @@
 package vrms;
 
+import javax.swing.JOptionPane;
 import java.io.*;
 
 public class UserStore {
@@ -9,12 +10,22 @@ public class UserStore {
     private UserStore() {
     }
 
-    public static void ensureDefaultAdmin() throws IOException {
-        DataFiles.initialize();
+    public static boolean ensureDefaultAdmin() {
+        try {
+            DataFiles.initialize();
 
-        if (!emailExists(DEFAULT_ADMIN_EMAIL)) {
-            appendUser(nextId(), "Administrator", DEFAULT_ADMIN_EMAIL,
-                    "0000000000", DEFAULT_ADMIN_PASSWORD, "ADMIN");
+            if (!emailExists(DEFAULT_ADMIN_EMAIL)) {
+                appendUser(nextId(), "Administrator", DEFAULT_ADMIN_EMAIL,
+                        "0000000000", DEFAULT_ADMIN_PASSWORD, "ADMIN");
+            }
+
+            return true;
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null,
+                    "VRMS could not create its local data files.\n" + ex.getMessage(),
+                    "Startup Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
