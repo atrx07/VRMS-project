@@ -1,19 +1,11 @@
 package vrms;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            UserStore.ensureDefaultAdmin();
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null,
-                    "VRMS could not create its local data files.\n" + ex.getMessage(),
-                    "Startup Error",
-                    JOptionPane.ERROR_MESSAGE);
+        if (!UserStore.ensureDefaultAdmin()) {
             return;
         }
 
