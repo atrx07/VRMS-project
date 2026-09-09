@@ -49,6 +49,9 @@ public class MyRentalsPage extends JFrame {
     }
 
     private JPanel createRentalCard(String[] rental) throws IOException {
+        int rentalId = Integer.parseInt(rental[0]);
+        boolean active = rental[6].equals("ACTIVE");
+
         String[] vehicle = VehicleStore.getVehicleById(Integer.parseInt(rental[1]));
         String vehicleName = vehicle == null ? "Vehicle " + rental[1] : vehicle[2];
         String ownerName = vehicle == null
@@ -57,14 +60,16 @@ public class MyRentalsPage extends JFrame {
 
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 220));
+        card.setPreferredSize(new Dimension(310, 265));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(18, 18, 18, 18)
         ));
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
-        JLabel status = createBadge(rental[6], UIColors.SUCCESS_BG, UIColors.SUCCESS);
+        JLabel status = active
+                ? createBadge("ACTIVE", UIColors.SUCCESS_BG, UIColors.SUCCESS)
+                : createBadge("RETURNED", UIColors.BG_SECONDARY_BTN, UIColors.TEXT_MUTED);
         status.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel name = new JLabel(vehicleName);
@@ -94,8 +99,18 @@ public class MyRentalsPage extends JFrame {
         card.add(owner);
         card.add(Box.createVerticalStrut(5));
         card.add(dates);
-        card.add(Box.createVerticalStrut(18));
+        card.add(Box.createVerticalStrut(14));
         card.add(total);
+        card.add(Box.createVerticalGlue());
+
+        if (active) {
+            JButton returnButton = createPrimaryButton("Return Vehicle");
+            returnButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+            returnButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+            returnButton.addActionListener(e -> returnVehicle(rentalId, vehicleName));
+            card.add(Box.createVerticalStrut(14));
+            card.add(returnButton);
+        }
 
         return card;
     }
@@ -126,6 +141,39 @@ public class MyRentalsPage extends JFrame {
         bar.add(refresh);
         bar.add(back);
         return bar;
+    }
+
+    private void returnVehicle(int rentalId, String vehicleName) {
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Return " + vehicleName + " now?",
+                "Confirm Return",
+                JOptionPane.YES_NO_OPTION);
+
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            String error = RentalStore.returnRental(rentalId, Session.userId);
+            if (error != null) {
+                JOptionPane.showMessageDialog(this,
+                        error,
+                        "Return Failed",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Vehicle returned successfully.",
+                    "VRMS",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadRentals();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Could not update rental data.\n" + ex.getMessage(),
+                    "File Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void loadRentals() {
