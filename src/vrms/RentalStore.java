@@ -48,6 +48,37 @@ public class RentalStore {
         return null;
     }
 
+    public static String returnRental(int rentalId, int customerId) throws IOException {
+        List<String[]> rentals = readRentals();
+        String[] selectedRental = null;
+
+        for (String[] rental : rentals) {
+            if (Integer.parseInt(rental[0]) == rentalId) {
+                selectedRental = rental;
+                break;
+            }
+        }
+
+        if (selectedRental == null) {
+            return "Rental not found.";
+        }
+
+        if (Integer.parseInt(selectedRental[2]) != customerId) {
+            return "This rental does not belong to the current user.";
+        }
+
+        if (!selectedRental[6].equals("ACTIVE")) {
+            return "This vehicle has already been returned.";
+        }
+
+        int vehicleId = Integer.parseInt(selectedRental[1]);
+        selectedRental[6] = "RETURNED";
+        rewriteRentals(rentals);
+        VehicleStore.updateAvailability(vehicleId, "AVAILABLE");
+
+        return null;
+    }
+
     public static double calculateTotal(double pricePerDay, LocalDate startDate, LocalDate endDate) {
         long days = Math.max(1, ChronoUnit.DAYS.between(startDate, endDate));
         return days * pricePerDay;
@@ -80,6 +111,15 @@ public class RentalStore {
         }
 
         return rentals;
+    }
+
+    private static void rewriteRentals(List<String[]> rentals) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DataFiles.RENTALS_FILE))) {
+            for (String[] rental : rentals) {
+                writer.write(String.join("|", rental));
+                writer.newLine();
+            }
+        }
     }
 
     private static int nextId() throws IOException {
