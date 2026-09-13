@@ -12,13 +12,13 @@ public class RentVehiclePage extends JFrame {
     private final String[] vehicle;
     private final JTextField startField = new JTextField(LocalDate.now().toString());
     private final JTextField endField = new JTextField(LocalDate.now().plusDays(1).toString());
-    private final JLabel totalLabel = new JLabel("Total: Rs. 0.00");
+    private final JLabel totalLabel = new JLabel("Rental amount: Rs. 0.00");
 
     public RentVehiclePage(String[] vehicle) {
         this.vehicle = vehicle;
 
         setTitle("VRMS - Rent Vehicle");
-        setSize(520, 500);
+        setSize(520, 520);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -66,16 +66,23 @@ public class RentVehiclePage extends JFrame {
         addField(root, "Start Date (YYYY-MM-DD)", startField);
         addField(root, "End Date (YYYY-MM-DD)", endField);
 
-        JButton calculateButton = createSecondaryButton("Calculate Total");
+        JButton calculateButton = createSecondaryButton("Calculate Rental");
         calculateButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         calculateButton.addActionListener(e -> calculateTotal());
         root.add(calculateButton);
-        root.add(Box.createVerticalStrut(18));
+        root.add(Box.createVerticalStrut(15));
 
         totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         totalLabel.setForeground(UIColors.PRIMARY);
         totalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         root.add(totalLabel);
+
+        JLabel feeNote = new JLabel("A 10% VRMS service fee is added on the payment page.");
+        feeNote.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        feeNote.setForeground(UIColors.TEXT_MUTED);
+        feeNote.setAlignmentX(Component.LEFT_ALIGNMENT);
+        root.add(Box.createVerticalStrut(5));
+        root.add(feeNote);
         root.add(Box.createVerticalGlue());
 
         JPanel actions = new JPanel(new GridLayout(1, 2, 10, 0));
@@ -89,11 +96,11 @@ public class RentVehiclePage extends JFrame {
             dispose();
         });
 
-        JButton confirmButton = createPrimaryButton("Confirm Rental");
-        confirmButton.addActionListener(e -> confirmRental());
+        JButton paymentButton = createPrimaryButton("Continue to Payment");
+        paymentButton.addActionListener(e -> continueToPayment());
 
         actions.add(cancelButton);
-        actions.add(confirmButton);
+        actions.add(paymentButton);
         root.add(actions);
 
         calculateTotal();
@@ -121,47 +128,38 @@ public class RentVehiclePage extends JFrame {
             LocalDate end = LocalDate.parse(endField.getText().trim());
 
             if (end.isBefore(start)) {
-                totalLabel.setText("Total: invalid date range");
+                totalLabel.setText("Rental amount: invalid date range");
                 return;
             }
 
             double price = Double.parseDouble(vehicle[5]);
             double total = RentalStore.calculateTotal(price, start, end);
-            totalLabel.setText(String.format("Total: Rs. %.2f", total));
+            totalLabel.setText(String.format("Rental amount: Rs. %.2f", total));
         } catch (DateTimeParseException ex) {
-            totalLabel.setText("Total: enter valid dates");
+            totalLabel.setText("Rental amount: enter valid dates");
         }
     }
 
-    private void confirmRental() {
+    private void continueToPayment() {
         try {
             LocalDate start = LocalDate.parse(startField.getText().trim());
             LocalDate end = LocalDate.parse(endField.getText().trim());
 
-            String error = RentalStore.createRental(
-                    Integer.parseInt(vehicle[0]), Session.userId, start, end);
-
-            if (error != null) {
-                JOptionPane.showMessageDialog(this, error, "Rental Failed", JOptionPane.WARNING_MESSAGE);
+            if (end.isBefore(start)) {
+                JOptionPane.showMessageDialog(this,
+                        "End date cannot be before the start date.",
+                        "Invalid Date",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            JOptionPane.showMessageDialog(this,
-                    "Vehicle rented successfully.",
-                    "VRMS",
-                    JOptionPane.INFORMATION_MESSAGE);
-            new MyRentalsPage().setVisible(true);
+            new PaymentPage(vehicle, start, end).setVisible(true);
             dispose();
         } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(this,
                     "Enter dates in YYYY-MM-DD format.",
                     "Invalid Date",
                     JOptionPane.WARNING_MESSAGE);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Could not save rental data.\n" + ex.getMessage(),
-                    "File Error",
-                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
