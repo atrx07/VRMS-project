@@ -50,7 +50,7 @@ public class MyRentalsPage extends JFrame {
 
     private JPanel createRentalCard(String[] rental) throws IOException {
         int rentalId = Integer.parseInt(rental[0]);
-        boolean active = rental[6].equals("ACTIVE");
+        boolean active = rental[8].equals("ACTIVE");
 
         String[] vehicle = VehicleStore.getVehicleById(Integer.parseInt(rental[1]));
         String vehicleName = vehicle == null ? "Vehicle " + rental[1] : vehicle[2];
@@ -60,7 +60,7 @@ public class MyRentalsPage extends JFrame {
 
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 265));
+        card.setPreferredSize(new Dimension(310, 290));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(18, 18, 18, 18)
@@ -87,7 +87,17 @@ public class MyRentalsPage extends JFrame {
         dates.setForeground(UIColors.TEXT_MUTED);
         dates.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel total = new JLabel("Total: Rs. " + rental[5]);
+        JLabel rentalAmount = new JLabel("Rental: Rs. " + rental[5]);
+        rentalAmount.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        rentalAmount.setForeground(UIColors.TEXT_MUTED);
+        rentalAmount.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel fee = new JLabel("VRMS fee: Rs. " + rental[6]);
+        fee.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        fee.setForeground(UIColors.TEXT_MUTED);
+        fee.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel total = new JLabel("Paid: Rs. " + rental[7]);
         total.setFont(new Font("Segoe UI", Font.BOLD, 16));
         total.setForeground(UIColors.PRIMARY);
         total.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -99,7 +109,11 @@ public class MyRentalsPage extends JFrame {
         card.add(owner);
         card.add(Box.createVerticalStrut(5));
         card.add(dates);
-        card.add(Box.createVerticalStrut(14));
+        card.add(Box.createVerticalStrut(12));
+        card.add(rentalAmount);
+        card.add(Box.createVerticalStrut(3));
+        card.add(fee);
+        card.add(Box.createVerticalStrut(8));
         card.add(total);
         card.add(Box.createVerticalGlue());
 
