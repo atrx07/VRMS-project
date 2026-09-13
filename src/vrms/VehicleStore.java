@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class VehicleStore {
+    public static final String DELETED_BY_ADMIN = "DELETED_BY_ADMIN";
 
     private VehicleStore() {
     }
@@ -140,21 +141,26 @@ public class VehicleStore {
 
     public static boolean deleteVehicle(int vehicleId) throws IOException {
         List<String[]> vehicles = readVehicles();
-        boolean removed = false;
+        boolean archived = false;
 
-        for (int i = 0; i < vehicles.size(); i++) {
-            if (Integer.parseInt(vehicles.get(i)[0]) == vehicleId) {
-                vehicles.remove(i);
-                removed = true;
+        for (String[] vehicle : vehicles) {
+            if (Integer.parseInt(vehicle[0]) == vehicleId) {
+                if (vehicle[6].equals("RENTED")) {
+                    return false;
+                }
+
+                vehicle[6] = "UNAVAILABLE";
+                vehicle[7] = DELETED_BY_ADMIN;
+                archived = true;
                 break;
             }
         }
 
-        if (removed) {
+        if (archived) {
             rewriteVehicles(vehicles);
         }
 
-        return removed;
+        return archived;
     }
 
     private static List<String[]> readVehicles() throws IOException {
