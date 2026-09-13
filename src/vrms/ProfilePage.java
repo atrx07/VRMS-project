@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class ProfilePage extends JFrame {
@@ -16,7 +18,13 @@ public class ProfilePage extends JFrame {
         setTitle("VRMS - Profile");
         setSize(560, 560);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                backToCatalog();
+            }
+        });
         setResizable(false);
 
         JPanel root = new JPanel(new BorderLayout(0, 18));
@@ -103,10 +111,7 @@ public class ProfilePage extends JFrame {
         actions.setOpaque(false);
 
         JButton backButton = createSecondaryButton("Back to Catalog");
-        backButton.addActionListener(e -> {
-            new CatalogPage().setVisible(true);
-            dispose();
-        });
+        backButton.addActionListener(e -> backToCatalog());
 
         JButton saveButton = createPrimaryButton("Save Changes");
         saveButton.addActionListener(e -> saveProfile());
@@ -168,6 +173,11 @@ public class ProfilePage extends JFrame {
                     "File Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void backToCatalog() {
+        new CatalogPage().setVisible(true);
+        dispose();
     }
 
     private JButton createPrimaryButton(String text) {
