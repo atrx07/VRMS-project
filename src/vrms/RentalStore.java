@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class RentalStore {
+    public static final double PLATFORM_FEE_RATE = 0.10;
 
     private RentalStore() {
     }
@@ -33,14 +34,17 @@ public class RentalStore {
             return "End date cannot be before the start date.";
         }
 
-        long days = Math.max(1, ChronoUnit.DAYS.between(startDate, endDate));
-        double total = days * Double.parseDouble(vehicle[5]);
+        double rentalAmount = calculateTotal(Double.parseDouble(vehicle[5]), startDate, endDate);
+        double platformFee = calculatePlatformFee(rentalAmount);
+        double totalPaid = rentalAmount + platformFee;
         int rentalId = nextId();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DataFiles.RENTALS_FILE, true))) {
             writer.write(rentalId + "|" + vehicleId + "|" + customerId + "|"
                     + startDate + "|" + endDate + "|"
-                    + String.format(Locale.US, "%.2f", total) + "|ACTIVE");
+                    + money(rentalAmount) + "|"
+                    + money(platformFee) + "|"
+                    + money(totalPaid) + "|ACTIVE");
             writer.newLine();
         }
 
@@ -67,12 +71,12 @@ public class RentalStore {
             return "This rental does not belong to the current user.";
         }
 
-        if (!selectedRental[6].equals("ACTIVE")) {
+        if (!selectedRental[8].equals("ACTIVE")) {
             return "This vehicle has already been returned.";
         }
 
         int vehicleId = Integer.parseInt(selectedRental[1]);
-        selectedRental[6] = "RETURNED";
+        selectedRental[8] = "RETURNED";
         rewriteRentals(rentals);
         VehicleStore.updateAvailability(vehicleId, "AVAILABLE");
 
@@ -82,6 +86,14 @@ public class RentalStore {
     public static double calculateTotal(double pricePerDay, LocalDate startDate, LocalDate endDate) {
         long days = Math.max(1, ChronoUnit.DAYS.between(startDate, endDate));
         return days * pricePerDay;
+    }
+
+    public static double calculatePlatformFee(double rentalAmount) {
+        return rentalAmount * PLATFORM_FEE_RATE;
+    }
+
+    public static double calculateCustomerTotal(double rentalAmount) {
+        return rentalAmount + calculatePlatformFee(rentalAmount);
     }
 
     public static List<String[]> getRentalsForCustomer(int customerId) throws IOException {
@@ -96,6 +108,34 @@ public class RentalStore {
         return result;
     }
 
+    public static List<String[]> getAllRentals() throws IOException {
+        return readRentals();
+    }
+
+    public static double getTotalPlatformEarnings() throws IOException {
+        double total = 0;
+        for (String[] rental : readRentals()) {
+            total += Double.parseDouble(rental[6]);
+        }
+        return total;
+    }
+
+    public static double getTotalOwnerPayouts() throws IOException {
+        double total = 0;
+        for (String[] rental : readRentals()) {
+            total += Double.parseDouble(rental[5]);
+        }
+        return total;
+    }
+
+    public static double getTotalCustomerPayments() throws IOException {
+        double total = 0;
+        for (String[] rental : readRentals()) {
+            total += Double.parseDouble(rental[7]);
+        }
+        return total;
+    }
+
     private static List<String[]> readRentals() throws IOException {
         DataFiles.initialize();
         List<String[]> rentals = new ArrayList<>();
@@ -104,8 +144,15 @@ public class RentalStore {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] rental = line.split("\\|", -1);
-                if (rental.length == 7) {
+
+                if (rental.length == 9) {
                     rentals.add(rental);
+                } else if (rental.length == 7) {
+                    // Compatibility with rentals created before the payment page existed.
+                    rentals.add(new String[]{
+                            rental[0], rental[1], rental[2], rental[3], rental[4],
+                            rental[5], "0.00", rental[5], rental[6]
+                    });
                 }
             }
         }
@@ -133,5 +180,9 @@ public class RentalStore {
         }
 
         return maxId + 1;
+    }
+
+    private static String money(double amount) {
+        return String.format(Locale.US, "%.2f", amount);
     }
 }
