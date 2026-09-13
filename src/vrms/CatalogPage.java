@@ -48,7 +48,7 @@ public class CatalogPage extends JFrame {
         textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(welcome);
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 18, 0));
         right.setOpaque(false);
 
         JLabel brand = new JLabel("VRMS");
@@ -131,18 +131,17 @@ public class CatalogPage extends JFrame {
     }
 
     private JButton createMenuButton() {
-        JButton button = new JButton("Menu  v");
+        JButton button = new JButton("\u2630");
         button.setUI(new BasicButtonUI());
+        button.setPreferredSize(new Dimension(48, 42));
         button.setBackground(Color.WHITE);
         button.setForeground(UIColors.PRIMARY);
         button.setOpaque(true);
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIColors.PRIMARY, 2),
-                new EmptyBorder(8, 16, 8, 16)
-        ));
+        button.setBorder(BorderFactory.createLineBorder(UIColors.PRIMARY, 2));
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 24));
+        button.setMargin(new Insets(0, 0, 0, 0));
         button.setToolTipText("Open navigation menu");
         return button;
     }
