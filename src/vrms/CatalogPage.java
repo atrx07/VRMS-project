@@ -48,14 +48,18 @@ public class CatalogPage extends JFrame {
         textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(welcome);
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 18, 0));
+        JPanel right = new JPanel();
         right.setOpaque(false);
+        right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
 
         JLabel brand = new JLabel("VRMS");
         brand.setFont(new Font("Segoe UI", Font.BOLD, 20));
         brand.setForeground(UIColors.PRIMARY);
+        brand.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JButton menuButton = createMenuButton();
+        menuButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+
         JPopupMenu menu = createCustomerMenu();
         menuButton.addActionListener(e -> menu.show(
                 menuButton,
@@ -64,6 +68,7 @@ public class CatalogPage extends JFrame {
         ));
 
         right.add(brand);
+        right.add(Box.createHorizontalStrut(18));
         right.add(menuButton);
 
         header.add(textPanel, BorderLayout.WEST);
@@ -131,19 +136,58 @@ public class CatalogPage extends JFrame {
     }
 
     private JButton createMenuButton() {
-        JButton button = new JButton("\u2630");
+        JButton button = new JButton("Menu");
         button.setUI(new BasicButtonUI());
-        button.setPreferredSize(new Dimension(48, 42));
+        button.setPreferredSize(new Dimension(96, 42));
+        button.setMaximumSize(new Dimension(96, 42));
         button.setBackground(Color.WHITE);
         button.setForeground(UIColors.PRIMARY);
         button.setOpaque(true);
-        button.setBorder(BorderFactory.createLineBorder(UIColors.PRIMARY, 2));
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.PRIMARY, 2),
+                new EmptyBorder(8, 13, 8, 13)
+        ));
         button.setFocusPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 24));
-        button.setMargin(new Insets(0, 0, 0, 0));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setHorizontalAlignment(SwingConstants.CENTER);
+        button.setHorizontalTextPosition(SwingConstants.LEFT);
+        button.setVerticalTextPosition(SwingConstants.CENTER);
+        button.setIconTextGap(9);
+        button.setIcon(createHamburgerIcon());
         button.setToolTipText("Open navigation menu");
         return button;
+    }
+
+    private Icon createHamburgerIcon() {
+        return new Icon() {
+            private final int width = 18;
+            private final int height = 14;
+
+            @Override
+            public int getIconWidth() {
+                return width;
+            }
+
+            @Override
+            public int getIconHeight() {
+                return height;
+            }
+
+            @Override
+            public void paintIcon(Component component, Graphics graphics, int x, int y) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setColor(UIColors.PRIMARY);
+                g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+                int startX = x + 1;
+                int endX = x + width - 1;
+                g2.drawLine(startX, y + 2, endX, y + 2);
+                g2.drawLine(startX, y + height / 2, endX, y + height / 2);
+                g2.drawLine(startX, y + height - 2, endX, y + height - 2);
+                g2.dispose();
+            }
+        };
     }
 
     private JScrollPane createCardArea() {
