@@ -248,7 +248,9 @@ public class AdminDashboardPage extends JFrame {
 
     private void deleteVehicle(int vehicleId, String vehicleName) {
         int answer = JOptionPane.showConfirmDialog(this,
-                "Delete " + vehicleName + " from the catalog?",
+                "Remove " + vehicleName + " from the catalog?\n\n"
+                        + "The listing will be marked as deleted by admin, but its record will be kept "
+                        + "so past rental and payment history stays readable.",
                 "Confirm Delete",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
@@ -258,7 +260,15 @@ public class AdminDashboardPage extends JFrame {
         }
 
         try {
-            VehicleStore.deleteVehicle(vehicleId);
+            boolean deleted = VehicleStore.deleteVehicle(vehicleId);
+            if (!deleted) {
+                JOptionPane.showMessageDialog(this,
+                        "This vehicle could not be deleted. It may currently be rented.",
+                        "Delete Failed",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             loadDashboard();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
