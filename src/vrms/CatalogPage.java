@@ -24,7 +24,6 @@ public class CatalogPage extends JFrame {
 
         root.add(createHeader(), BorderLayout.NORTH);
         root.add(createCardArea(), BorderLayout.CENTER);
-        root.add(createBottomBar(), BorderLayout.SOUTH);
 
         loadVehicles();
     }
@@ -49,13 +48,86 @@ public class CatalogPage extends JFrame {
         textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(welcome);
 
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        right.setOpaque(false);
+
         JLabel brand = new JLabel("VRMS");
         brand.setFont(new Font("Segoe UI", Font.BOLD, 20));
         brand.setForeground(UIColors.PRIMARY);
 
+        JButton menuButton = createPrimaryButton("Menu");
+        JPopupMenu menu = createCustomerMenu();
+        menuButton.addActionListener(e -> menu.show(
+                menuButton,
+                menuButton.getWidth() - menu.getPreferredSize().width,
+                menuButton.getHeight() + 4
+        ));
+
+        right.add(brand);
+        right.add(menuButton);
+
         header.add(textPanel, BorderLayout.WEST);
-        header.add(brand, BorderLayout.EAST);
+        header.add(right, BorderLayout.EAST);
         return header;
+    }
+
+    private JPopupMenu createCustomerMenu() {
+        JPopupMenu menu = new JPopupMenu();
+        menu.setBorder(BorderFactory.createLineBorder(UIColors.BORDER_DARK));
+
+        JMenuItem refreshItem = createMenuItem("Refresh Catalog");
+        refreshItem.addActionListener(e -> loadVehicles());
+
+        JMenuItem rentalsItem = createMenuItem("My Rentals");
+        rentalsItem.addActionListener(e -> {
+            new MyRentalsPage().setVisible(true);
+            dispose();
+        });
+
+        JMenuItem vehiclesItem = createMenuItem("My Vehicles");
+        vehiclesItem.addActionListener(e -> {
+            new MyVehiclesPage().setVisible(true);
+            dispose();
+        });
+
+        JMenuItem listItem = createMenuItem("List Vehicle");
+        listItem.addActionListener(e -> {
+            new ListVehiclePage().setVisible(true);
+            dispose();
+        });
+
+        JMenuItem profileItem = createMenuItem("Profile");
+        profileItem.addActionListener(e -> {
+            new ProfilePage().setVisible(true);
+            dispose();
+        });
+
+        JMenuItem logoutItem = createMenuItem("Logout");
+        logoutItem.setForeground(UIColors.DANGER);
+        logoutItem.addActionListener(e -> {
+            Session.clear();
+            new LoginPage().setVisible(true);
+            dispose();
+        });
+
+        menu.add(refreshItem);
+        menu.addSeparator();
+        menu.add(rentalsItem);
+        menu.add(vehiclesItem);
+        menu.add(listItem);
+        menu.add(profileItem);
+        menu.addSeparator();
+        menu.add(logoutItem);
+        return menu;
+    }
+
+    private JMenuItem createMenuItem(String text) {
+        JMenuItem item = new JMenuItem(text);
+        item.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        item.setForeground(UIColors.TEXT_DARK);
+        item.setBackground(Color.WHITE);
+        item.setBorder(new EmptyBorder(8, 14, 8, 14));
+        return item;
     }
 
     private JScrollPane createCardArea() {
@@ -150,46 +222,6 @@ public class CatalogPage extends JFrame {
         badge.setFont(new Font("Segoe UI", Font.BOLD, 10));
         badge.setBorder(new EmptyBorder(5, 9, 5, 9));
         return badge;
-    }
-
-    private JPanel createBottomBar() {
-        JPanel bar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        bar.setOpaque(false);
-
-        JButton refreshButton = createSecondaryButton("Refresh");
-        refreshButton.addActionListener(e -> loadVehicles());
-
-        JButton rentalsButton = createSecondaryButton("My Rentals");
-        rentalsButton.addActionListener(e -> {
-            new MyRentalsPage().setVisible(true);
-            dispose();
-        });
-
-        JButton myVehiclesButton = createSecondaryButton("My Vehicles");
-        myVehiclesButton.addActionListener(e -> {
-            new MyVehiclesPage().setVisible(true);
-            dispose();
-        });
-
-        JButton listButton = createPrimaryButton("List Vehicle");
-        listButton.addActionListener(e -> {
-            new ListVehiclePage().setVisible(true);
-            dispose();
-        });
-
-        JButton logoutButton = createSecondaryButton("Logout");
-        logoutButton.addActionListener(e -> {
-            Session.clear();
-            new LoginPage().setVisible(true);
-            dispose();
-        });
-
-        bar.add(refreshButton);
-        bar.add(rentalsButton);
-        bar.add(myVehiclesButton);
-        bar.add(listButton);
-        bar.add(logoutButton);
-        return bar;
     }
 
     private void loadVehicles() {
