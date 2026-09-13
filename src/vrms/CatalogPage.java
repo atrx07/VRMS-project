@@ -48,14 +48,14 @@ public class CatalogPage extends JFrame {
         textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(welcome);
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         right.setOpaque(false);
 
         JLabel brand = new JLabel("VRMS");
         brand.setFont(new Font("Segoe UI", Font.BOLD, 20));
         brand.setForeground(UIColors.PRIMARY);
 
-        JButton menuButton = createPrimaryButton("Menu");
+        JButton menuButton = createMenuButton();
         JPopupMenu menu = createCustomerMenu();
         menuButton.addActionListener(e -> menu.show(
                 menuButton,
@@ -128,6 +128,23 @@ public class CatalogPage extends JFrame {
         item.setBackground(Color.WHITE);
         item.setBorder(new EmptyBorder(8, 14, 8, 14));
         return item;
+    }
+
+    private JButton createMenuButton() {
+        JButton button = new JButton("Menu  v");
+        button.setUI(new BasicButtonUI());
+        button.setBackground(Color.WHITE);
+        button.setForeground(UIColors.PRIMARY);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.PRIMARY, 2),
+                new EmptyBorder(8, 16, 8, 16)
+        ));
+        button.setFocusPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setToolTipText("Open navigation menu");
+        return button;
     }
 
     private JScrollPane createCardArea() {
