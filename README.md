@@ -12,6 +12,8 @@ Implemented:
 - Persistent local user accounts
 - Simple session state after login
 - Card-based customer vehicle catalog
+- Customer menu for catalog actions
+- Editable customer profile for name, email, phone, and optional password change
 - Vehicle owner username shown on catalog cards
 - List a vehicle for rent
 - My Vehicles page
@@ -29,6 +31,19 @@ Implemented:
 - Admin delete action for available catalog vehicles
 - Admin Earnings page with platform earnings, owner payouts, customer payments, and transaction cards
 - Local runtime files for users, vehicles, and rentals
+
+## Customer menu
+
+The main customer catalog keeps the vehicle cards as the focus. Customer actions are grouped under the `Menu` button:
+
+- Refresh Catalog
+- My Rentals
+- My Vehicles
+- List Vehicle
+- Profile
+- Logout
+
+The Profile page loads the currently signed-in customer's local account information. The customer can update their name, email and phone number, and can optionally enter a new password. Leaving the password field empty keeps the existing password.
 
 ## Local data
 
