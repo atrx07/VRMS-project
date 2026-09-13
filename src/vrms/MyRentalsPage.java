@@ -53,6 +53,9 @@ public class MyRentalsPage extends JFrame {
         boolean active = rental[8].equals("ACTIVE");
 
         String[] vehicle = VehicleStore.getVehicleById(Integer.parseInt(rental[1]));
+        boolean deletedByAdmin = vehicle == null
+                || vehicle[7].equals(VehicleStore.DELETED_BY_ADMIN);
+
         String vehicleName = vehicle == null ? "Vehicle " + rental[1] : vehicle[2];
         String ownerName = vehicle == null
                 ? "Unknown owner"
@@ -60,17 +63,27 @@ public class MyRentalsPage extends JFrame {
 
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 290));
+        card.setPreferredSize(new Dimension(310, deletedByAdmin ? 315 : 290));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(18, 18, 18, 18)
         ));
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
+        JPanel badgeRow = new JPanel(new BorderLayout(8, 0));
+        badgeRow.setOpaque(false);
+        badgeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        badgeRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel status = active
                 ? createBadge("ACTIVE", UIColors.SUCCESS_BG, UIColors.SUCCESS)
                 : createBadge("RETURNED", UIColors.BG_SECONDARY_BTN, UIColors.TEXT_MUTED);
-        status.setAlignmentX(Component.LEFT_ALIGNMENT);
+        badgeRow.add(status, BorderLayout.WEST);
+
+        if (deletedByAdmin) {
+            badgeRow.add(createBadge("DELETED BY ADMIN", UIColors.DANGER_BG, UIColors.DANGER),
+                    BorderLayout.EAST);
+        }
 
         JLabel name = new JLabel(vehicleName);
         name.setFont(new Font("Segoe UI", Font.BOLD, 20));
@@ -102,7 +115,7 @@ public class MyRentalsPage extends JFrame {
         total.setForeground(UIColors.PRIMARY);
         total.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        card.add(status);
+        card.add(badgeRow);
         card.add(Box.createVerticalStrut(14));
         card.add(name);
         card.add(Box.createVerticalStrut(7));
@@ -115,6 +128,16 @@ public class MyRentalsPage extends JFrame {
         card.add(fee);
         card.add(Box.createVerticalStrut(8));
         card.add(total);
+
+        if (deletedByAdmin) {
+            JLabel note = new JLabel("This listing was removed from the catalog by an administrator.");
+            note.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            note.setForeground(UIColors.DANGER);
+            note.setAlignmentX(Component.LEFT_ALIGNMENT);
+            card.add(Box.createVerticalStrut(8));
+            card.add(note);
+        }
+
         card.add(Box.createVerticalGlue());
 
         if (active) {
