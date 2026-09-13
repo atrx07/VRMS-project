@@ -156,6 +156,12 @@ public class AdminDashboardPage extends JFrame {
         JButton refreshButton = createSecondaryButton("Refresh");
         refreshButton.addActionListener(e -> loadDashboard());
 
+        JButton earningsButton = createSecondaryButton("Earnings");
+        earningsButton.addActionListener(e -> {
+            new AdminEarningsPage().setVisible(true);
+            dispose();
+        });
+
         JButton pendingButton = createSecondaryButton("Pending Requests");
         pendingButton.addActionListener(e -> {
             new AdminApprovalPage().setVisible(true);
@@ -182,6 +188,7 @@ public class AdminDashboardPage extends JFrame {
         });
 
         bar.add(refreshButton);
+        bar.add(earningsButton);
         bar.add(pendingControl);
         bar.add(logoutButton);
         return bar;
