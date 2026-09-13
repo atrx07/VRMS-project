@@ -72,9 +72,11 @@ public class MyVehiclesPage extends JFrame {
     }
 
     private JPanel createVehicleCard(String[] vehicle) {
+        boolean deletedByAdmin = vehicle[7].equals(VehicleStore.DELETED_BY_ADMIN);
+
         JPanel card = new JPanel(new BorderLayout(0, 14));
         card.setBackground(UIColors.CARD_BG);
-        card.setPreferredSize(new Dimension(310, 225));
+        card.setPreferredSize(new Dimension(310, deletedByAdmin ? 250 : 225));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(18, 18, 18, 18)
@@ -102,7 +104,7 @@ public class MyVehiclesPage extends JFrame {
 
         JLabel rate = new JLabel("Rs. " + vehicle[5] + " / day");
         rate.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        rate.setForeground(UIColors.PRIMARY);
+        rate.setForeground(deletedByAdmin ? UIColors.TEXT_MUTED : UIColors.PRIMARY);
         rate.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel availability = new JLabel("Availability: " + prettyStatus(vehicle[6]));
@@ -118,6 +120,15 @@ public class MyVehiclesPage extends JFrame {
         details.add(Box.createVerticalStrut(9));
         details.add(availability);
 
+        if (deletedByAdmin) {
+            JLabel note = new JLabel("Removed from the catalog by an administrator.");
+            note.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            note.setForeground(UIColors.DANGER);
+            note.setAlignmentX(Component.LEFT_ALIGNMENT);
+            details.add(Box.createVerticalStrut(8));
+            details.add(note);
+        }
+
         card.add(details, BorderLayout.CENTER);
         return card;
     }
@@ -128,6 +139,9 @@ public class MyVehiclesPage extends JFrame {
         }
         if (status.equals("REJECTED")) {
             return createBadge("REJECTED", UIColors.DANGER_BG, UIColors.DANGER);
+        }
+        if (status.equals(VehicleStore.DELETED_BY_ADMIN)) {
+            return createBadge("DELETED BY ADMIN", UIColors.DANGER_BG, UIColors.DANGER);
         }
         return createBadge("PENDING", UIColors.WARNING_BG, UIColors.WARNING);
     }
