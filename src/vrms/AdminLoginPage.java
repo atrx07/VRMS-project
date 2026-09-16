@@ -56,7 +56,7 @@ public class AdminLoginPage extends JFrame {
         loginButton.setUI(new BasicButtonUI());
         loginButton.setPreferredSize(new Dimension(CONTROL_WIDTH, 36));
         loginButton.setMaximumSize(new Dimension(CONTROL_WIDTH, 36));
-        loginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.setBackground(UIColors.PRIMARY);
         loginButton.setForeground(Color.WHITE);
         loginButton.setOpaque(true);
@@ -114,6 +114,13 @@ public class AdminLoginPage extends JFrame {
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
+        JPanel fieldGroup = new JPanel();
+        fieldGroup.setOpaque(false);
+        fieldGroup.setLayout(new BoxLayout(fieldGroup, BoxLayout.Y_AXIS));
+        fieldGroup.setPreferredSize(new Dimension(CONTROL_WIDTH, 56));
+        fieldGroup.setMaximumSize(new Dimension(CONTROL_WIDTH, 56));
+        fieldGroup.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(UIColors.TEXT_DARK);
@@ -124,9 +131,11 @@ public class AdminLoginPage extends JFrame {
         field.setMaximumSize(new Dimension(CONTROL_WIDTH, 36));
         field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        panel.add(label);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(field);
+        fieldGroup.add(label);
+        fieldGroup.add(Box.createVerticalStrut(5));
+        fieldGroup.add(field);
+
+        panel.add(fieldGroup);
         panel.add(Box.createVerticalStrut(15));
     }
 }
