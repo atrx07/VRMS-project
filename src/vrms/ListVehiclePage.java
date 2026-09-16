@@ -9,6 +9,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class ListVehiclePage extends JFrame {
+    private static final int FORM_WIDTH = 310;
+
     private final JTextField nameField = new JTextField();
     private final JComboBox<String> typeBox = new JComboBox<>(new String[]{"Car", "Bike", "Van"});
     private final JTextField registrationField = new JTextField();
@@ -54,7 +56,8 @@ public class ListVehiclePage extends JFrame {
         addField(root, "Price Per Day (Rs.)", priceField);
 
         JButton submitButton = createPrimaryButton("SUBMIT FOR APPROVAL");
-        submitButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        submitButton.setPreferredSize(new Dimension(FORM_WIDTH, 38));
+        submitButton.setMaximumSize(new Dimension(FORM_WIDTH, 38));
         submitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         submitButton.addActionListener(e -> submitVehicle());
 
@@ -69,25 +72,29 @@ public class ListVehiclePage extends JFrame {
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
+        JPanel fieldGroup = new JPanel();
+        fieldGroup.setOpaque(false);
+        fieldGroup.setLayout(new BoxLayout(fieldGroup, BoxLayout.Y_AXIS));
+        fieldGroup.setPreferredSize(new Dimension(FORM_WIDTH, 58));
+        fieldGroup.setMaximumSize(new Dimension(FORM_WIDTH, 58));
+        fieldGroup.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(UIColors.TEXT_DARK);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel labelWrapper = new JPanel(new BorderLayout());
-        labelWrapper.setOpaque(false);
-        labelWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        labelWrapper.add(label, BorderLayout.WEST);
-
-        JPanel fieldWrapper = new JPanel(new BorderLayout());
-        fieldWrapper.setOpaque(false);
-        fieldWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        fieldWrapper.add(field, BorderLayout.CENTER);
+        field.setPreferredSize(new Dimension(FORM_WIDTH, 34));
+        field.setMaximumSize(new Dimension(FORM_WIDTH, 34));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        panel.add(labelWrapper);
-        panel.add(Box.createVerticalStrut(2));
-        panel.add(fieldWrapper);
-        panel.add(Box.createVerticalStrut(12));
+        fieldGroup.add(label);
+        fieldGroup.add(Box.createVerticalStrut(5));
+        fieldGroup.add(field);
+
+        panel.add(fieldGroup);
+        panel.add(Box.createVerticalStrut(10));
     }
 
     private void submitVehicle() {
