@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class AdminLoginPage extends JFrame {
+    private static final int CONTROL_WIDTH = 310;
 
     public AdminLoginPage() {
         setTitle("VRMS - Admin Login");
@@ -53,8 +54,9 @@ public class AdminLoginPage extends JFrame {
 
         JButton loginButton = new JButton("LOGIN AS ADMIN");
         loginButton.setUI(new BasicButtonUI());
-        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginButton.setPreferredSize(new Dimension(CONTROL_WIDTH, 36));
+        loginButton.setMaximumSize(new Dimension(CONTROL_WIDTH, 36));
+        loginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         loginButton.setBackground(UIColors.PRIMARY);
         loginButton.setForeground(Color.WHITE);
         loginButton.setOpaque(true);
@@ -93,7 +95,6 @@ public class AdminLoginPage extends JFrame {
             }
         });
 
-        root.add(Box.createVerticalStrut(5));
         root.add(loginButton);
         root.add(Box.createVerticalStrut(15));
 
@@ -116,22 +117,16 @@ public class AdminLoginPage extends JFrame {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(UIColors.TEXT_DARK);
-
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setOpaque(false);
-        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        wrapper.add(field, BorderLayout.CENTER);
+        field.setPreferredSize(new Dimension(CONTROL_WIDTH, 36));
+        field.setMaximumSize(new Dimension(CONTROL_WIDTH, 36));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel labelWrapper = new JPanel(new BorderLayout());
-        labelWrapper.setOpaque(false);
-        labelWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        labelWrapper.add(label, BorderLayout.WEST);
-
-        panel.add(labelWrapper);
-        panel.add(Box.createVerticalStrut(2));
-        panel.add(wrapper);
-        panel.add(Box.createVerticalStrut(12));
+        panel.add(label);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(field);
+        panel.add(Box.createVerticalStrut(15));
     }
 }
