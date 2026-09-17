@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class RegisterPage extends JFrame {
+    private static final int FORM_WIDTH = 310;
 
     public RegisterPage() {
         setTitle("VRMS - Customer Registration");
@@ -125,25 +126,28 @@ public class RegisterPage extends JFrame {
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
+        JPanel fieldGroup = new JPanel();
+        fieldGroup.setOpaque(false);
+        fieldGroup.setLayout(new BoxLayout(fieldGroup, BoxLayout.Y_AXIS));
+        fieldGroup.setPreferredSize(new Dimension(FORM_WIDTH, 56));
+        fieldGroup.setMaximumSize(new Dimension(FORM_WIDTH, 56));
+        fieldGroup.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(UIColors.TEXT_DARK);
-
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setOpaque(false);
-        wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        wrapper.add(field, BorderLayout.CENTER);
+        field.setPreferredSize(new Dimension(FORM_WIDTH, 34));
+        field.setMaximumSize(new Dimension(FORM_WIDTH, 34));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel labelWrapper = new JPanel(new BorderLayout());
-        labelWrapper.setOpaque(false);
-        labelWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        labelWrapper.add(label, BorderLayout.WEST);
+        fieldGroup.add(label);
+        fieldGroup.add(Box.createVerticalStrut(5));
+        fieldGroup.add(field);
 
-        panel.add(labelWrapper);
-        panel.add(Box.createVerticalStrut(2));
-        panel.add(wrapper);
+        panel.add(fieldGroup);
         panel.add(Box.createVerticalStrut(12));
     }
 }
