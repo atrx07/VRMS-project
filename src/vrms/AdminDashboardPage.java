@@ -217,7 +217,7 @@ public class AdminDashboardPage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not load vehicle data.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
 
@@ -274,7 +274,7 @@ public class AdminDashboardPage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not delete vehicle.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
