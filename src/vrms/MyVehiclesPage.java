@@ -204,7 +204,7 @@ public class MyVehiclesPage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not load your vehicles.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
 
