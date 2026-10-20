@@ -98,7 +98,7 @@ public class Database {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
             throw new SQLException(
-                    "MySQL JDBC driver not found. Add mysql-connector-j.jar to the lib folder and classpath.",
+                    "MySQL JDBC driver not found. Run run.bat or run.ps1 from the project root to download it automatically.",
                     ex
             );
         }
