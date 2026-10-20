@@ -101,8 +101,8 @@ public class RegisterPage extends JFrame {
                 dispose();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Could not save local account data.\n" + ex.getMessage(),
-                        "File Error",
+                        "Could not save account data.\n" + ex.getMessage(),
+                        "Database Error",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
