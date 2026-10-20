@@ -25,7 +25,8 @@ public class ProfilePage extends JFrame {
                 backToCatalog();
             }
         });
-        setResizable(false);
+        setResizable(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel root = new JPanel(new BorderLayout(0, 18));
         root.setBackground(UIColors.BG_PAGE);
