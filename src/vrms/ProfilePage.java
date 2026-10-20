@@ -140,7 +140,7 @@ public class ProfilePage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not load profile data.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -171,7 +171,7 @@ public class ProfilePage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not update profile data.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
