@@ -33,6 +33,25 @@ jobs:
           mkdir -p out
           javac -d out src/vrms/*.java
 
+  windows-bootstrap-audit:
+    name: Windows bootstrap audit
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download Connector and compile
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
+
   codeql:
     name: CodeQL security audit
     runs-on: ubuntu-latest
