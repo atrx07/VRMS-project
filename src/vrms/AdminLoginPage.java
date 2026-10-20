@@ -90,8 +90,8 @@ public class AdminLoginPage extends JFrame {
                 }
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Could not read local account data.\n" + ex.getMessage(),
-                        "File Error",
+                        "Could not read account data.\n" + ex.getMessage(),
+                        "Database Error",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
