@@ -43,8 +43,5 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (rental_id) REFERENCES rentals(rental_id)
 );
 
-INSERT INTO users (name, email, phone, password, role)
-SELECT 'Administrator', 'admin@vrms.com', '0000000000', 'admin123', 'ADMIN'
-WHERE NOT EXISTS (
-    SELECT 1 FROM users WHERE email = 'admin@vrms.com'
-);
+INSERT IGNORE INTO users (name, email, phone, password, role)
+VALUES ('Administrator', 'admin@vrms.com', '0000000000', 'admin123', 'ADMIN');
