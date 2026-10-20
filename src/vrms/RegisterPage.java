@@ -24,7 +24,8 @@ public class RegisterPage extends JFrame {
                 dispose();
             }
         });
-        setResizable(false);
+        setResizable(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel root = new JPanel();
         root.setBackground(UIColors.BG_PAGE);
