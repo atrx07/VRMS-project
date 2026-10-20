@@ -27,7 +27,8 @@ public class ListVehiclePage extends JFrame {
                 backToCatalog();
             }
         });
-        setResizable(false);
+        setResizable(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel root = new JPanel();
         root.setBackground(UIColors.BG_PAGE);
