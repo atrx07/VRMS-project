@@ -1,9 +1,11 @@
 package vrms;
 
 import javax.swing.JOptionPane;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserStore {
     public static final String DEFAULT_ADMIN_EMAIL = "admin@vrms.com";
@@ -14,17 +16,27 @@ public class UserStore {
 
     public static boolean ensureDefaultAdmin() {
         try {
-            DataFiles.initialize();
+            Database.initializeDatabase();
 
-            if (!emailExists(DEFAULT_ADMIN_EMAIL)) {
-                appendUser(nextId(), "Administrator", DEFAULT_ADMIN_EMAIL,
-                        "0000000000", DEFAULT_ADMIN_PASSWORD, "ADMIN");
+            String sql = "INSERT INTO users (name, email, phone, password, role) "
+                    + "SELECT ?, ?, ?, ?, ? "
+                    + "WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = ?)";
+
+            try (Connection connection = Database.getConnection();
+                 PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, "Administrator");
+                statement.setString(2, DEFAULT_ADMIN_EMAIL);
+                statement.setString(3, "0000000000");
+                statement.setString(4, DEFAULT_ADMIN_PASSWORD);
+                statement.setString(5, "ADMIN");
+                statement.setString(6, DEFAULT_ADMIN_EMAIL);
+                statement.executeUpdate();
             }
 
             return true;
-        } catch (IOException ex) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null,
-                    "VRMS could not create its local data files.\n" + ex.getMessage(),
+                    "VRMS could not connect to MySQL.\n" + ex.getMessage(),
                     "Startup Error",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -33,54 +45,74 @@ public class UserStore {
 
     public static String registerCustomer(String name, String email,
                                           String phone, String password) throws IOException {
-        DataFiles.initialize();
+        name = name.trim();
+        email = email.trim();
+        phone = phone.trim();
 
-        if (containsSeparator(name) || containsSeparator(email)
-                || containsSeparator(phone) || containsSeparator(password)) {
-            return "The character | cannot be used in registration details.";
+        if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
+            return "Please fill in all fields.";
         }
 
         if (emailExists(email)) {
             return "An account with this email already exists.";
         }
 
-        appendUser(nextId(), name.trim(), email.trim(), phone.trim(), password, "CUSTOMER");
-        return null;
+        String sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'CUSTOMER')";
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, name);
+            statement.setString(2, email);
+            statement.setString(3, phone);
+            statement.setString(4, password);
+            statement.executeUpdate();
+            return null;
+        } catch (SQLException ex) {
+            throw databaseError(ex);
+        }
     }
 
     public static boolean login(String email, String password, String requiredRole) throws IOException {
-        DataFiles.initialize();
+        String sql = "SELECT user_id, name, email, role FROM users "
+                + "WHERE LOWER(email) = LOWER(?) AND password = ? AND role = ?";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(DataFiles.USERS_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] user = line.split("\\|", -1);
-                if (user.length != 6) {
-                    continue;
-                }
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email.trim());
+            statement.setString(2, password);
+            statement.setString(3, requiredRole.toUpperCase());
 
-                if (user[2].equalsIgnoreCase(email.trim())
-                        && user[4].equals(password)
-                        && user[5].equalsIgnoreCase(requiredRole)) {
-                    Session.start(Integer.parseInt(user[0]), user[1], user[2], user[5]);
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    Session.start(
+                            result.getInt("user_id"),
+                            result.getString("name"),
+                            result.getString("email"),
+                            result.getString("role")
+                    );
                     return true;
                 }
             }
-        }
 
-        return false;
+            return false;
+        } catch (SQLException ex) {
+            throw databaseError(ex);
+        }
     }
 
     public static boolean emailExists(String email) throws IOException {
-        DataFiles.initialize();
+        String sql = "SELECT 1 FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1";
 
-        for (String[] user : readUsers()) {
-            if (user[2].equalsIgnoreCase(email.trim())) {
-                return true;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email.trim());
+
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next();
             }
+        } catch (SQLException ex) {
+            throw databaseError(ex);
         }
-
-        return false;
     }
 
     public static String findNameById(int userId) throws IOException {
@@ -89,21 +121,26 @@ public class UserStore {
     }
 
     public static String[] getUserById(int userId) throws IOException {
-        DataFiles.initialize();
+        String sql = "SELECT user_id, name, email, phone, password, role FROM users WHERE user_id = ?";
 
-        for (String[] user : readUsers()) {
-            if (Integer.parseInt(user[0]) == userId) {
-                return user;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return userArray(result);
+                }
             }
-        }
 
-        return null;
+            return null;
+        } catch (SQLException ex) {
+            throw databaseError(ex);
+        }
     }
 
     public static String updateProfile(int userId, String name, String email,
                                        String phone, String newPassword) throws IOException {
-        DataFiles.initialize();
-
         name = name.trim();
         email = email.trim();
         phone = phone.trim();
@@ -112,88 +149,67 @@ public class UserStore {
             return "Name, email and phone cannot be empty.";
         }
 
-        if (containsSeparator(name) || containsSeparator(email)
-                || containsSeparator(phone) || containsSeparator(newPassword)) {
-            return "The character | cannot be used in profile details.";
-        }
+        String duplicateSql = "SELECT 1 FROM users WHERE LOWER(email) = LOWER(?) AND user_id <> ? LIMIT 1";
 
-        List<String[]> users = readUsers();
-        String[] selectedUser = null;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement duplicate = connection.prepareStatement(duplicateSql)) {
 
-        for (String[] user : users) {
-            int id = Integer.parseInt(user[0]);
-            if (id != userId && user[2].equalsIgnoreCase(email)) {
-                return "Another account already uses this email.";
-            }
-            if (id == userId) {
-                selectedUser = user;
-            }
-        }
+            duplicate.setString(1, email);
+            duplicate.setInt(2, userId);
 
-        if (selectedUser == null) {
-            return "Account not found.";
-        }
-
-        selectedUser[1] = name;
-        selectedUser[2] = email;
-        selectedUser[3] = phone;
-        if (!newPassword.isEmpty()) {
-            selectedUser[4] = newPassword;
-        }
-
-        rewriteUsers(users);
-        Session.start(userId, selectedUser[1], selectedUser[2], selectedUser[5]);
-        return null;
-    }
-
-    private static List<String[]> readUsers() throws IOException {
-        DataFiles.initialize();
-        List<String[]> users = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(DataFiles.USERS_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] user = line.split("\\|", -1);
-                if (user.length == 6) {
-                    users.add(user);
+            try (ResultSet result = duplicate.executeQuery()) {
+                if (result.next()) {
+                    return "Another account already uses this email.";
                 }
             }
-        }
 
-        return users;
-    }
-
-    private static void rewriteUsers(List<String[]> users) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DataFiles.USERS_FILE))) {
-            for (String[] user : users) {
-                writer.write(String.join("|", user));
-                writer.newLine();
+            String updateSql;
+            if (newPassword == null || newPassword.isEmpty()) {
+                updateSql = "UPDATE users SET name = ?, email = ?, phone = ? WHERE user_id = ?";
+            } else {
+                updateSql = "UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE user_id = ?";
             }
-        }
-    }
 
-    private static int nextId() throws IOException {
-        int maxId = 0;
+            try (PreparedStatement update = connection.prepareStatement(updateSql)) {
+                update.setString(1, name);
+                update.setString(2, email);
+                update.setString(3, phone);
 
-        for (String[] user : readUsers()) {
-            try {
-                maxId = Math.max(maxId, Integer.parseInt(user[0]));
-            } catch (NumberFormatException ignored) {
+                if (newPassword == null || newPassword.isEmpty()) {
+                    update.setInt(4, userId);
+                } else {
+                    update.setString(4, newPassword);
+                    update.setInt(5, userId);
+                }
+
+                if (update.executeUpdate() == 0) {
+                    return "Account not found.";
+                }
             }
-        }
 
-        return maxId + 1;
+            String[] updatedUser = getUserById(userId);
+            if (updatedUser != null) {
+                Session.start(userId, updatedUser[1], updatedUser[2], updatedUser[5]);
+            }
+
+            return null;
+        } catch (SQLException ex) {
+            throw databaseError(ex);
+        }
     }
 
-    private static void appendUser(int id, String name, String email,
-                                   String phone, String password, String role) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DataFiles.USERS_FILE, true))) {
-            writer.write(id + "|" + name + "|" + email + "|" + phone + "|" + password + "|" + role);
-            writer.newLine();
-        }
+    private static String[] userArray(ResultSet result) throws SQLException {
+        return new String[]{
+                String.valueOf(result.getInt("user_id")),
+                result.getString("name"),
+                result.getString("email"),
+                result.getString("phone"),
+                result.getString("password"),
+                result.getString("role")
+        };
     }
 
-    private static boolean containsSeparator(String value) {
-        return value.contains("|") || value.contains("\n") || value.contains("\r");
+    private static IOException databaseError(SQLException ex) {
+        return new IOException("Database error: " + ex.getMessage(), ex);
     }
 }
