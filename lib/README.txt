@@ -1,10 +1,13 @@
-Place the MySQL Connector/J JAR in this folder.
+MySQL Connector/J is downloaded automatically.
 
-Example file name:
-mysql-connector-j-9.x.x.jar
+For a fresh clone, run from the project root:
 
-Compile from the project root:
-javac -cp "lib/*" -d out src/vrms/*.java
+run.bat
 
-Run on Windows:
-java -cp "out;lib/*" vrms.Main
+or:
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
+
+The build script downloads MySQL Connector/J 9.7.0 from Maven Central if the JAR is missing, then compiles the project.
+
+Downloaded JAR files in this folder are ignored by Git.
