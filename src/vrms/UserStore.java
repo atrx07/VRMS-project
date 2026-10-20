@@ -18,9 +18,8 @@ public class UserStore {
         try {
             Database.initializeDatabase();
 
-            String sql = "INSERT INTO users (name, email, phone, password, role) "
-                    + "SELECT ?, ?, ?, ?, ? "
-                    + "WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = ?)";
+            String sql = "INSERT IGNORE INTO users (name, email, phone, password, role) "
+                    + "VALUES (?, ?, ?, ?, ?)";
 
             try (Connection connection = Database.getConnection();
                  PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -29,7 +28,6 @@ public class UserStore {
                 statement.setString(3, "0000000000");
                 statement.setString(4, DEFAULT_ADMIN_PASSWORD);
                 statement.setString(5, "ADMIN");
-                statement.setString(6, DEFAULT_ADMIN_EMAIL);
                 statement.executeUpdate();
             }
 
