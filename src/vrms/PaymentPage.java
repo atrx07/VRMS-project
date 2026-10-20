@@ -176,7 +176,7 @@ public class PaymentPage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not save payment and rental data.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
