@@ -142,7 +142,7 @@ public class ListVehiclePage extends JFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Could not save vehicle data.\n" + ex.getMessage(),
-                    "File Error",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
