@@ -37,8 +37,8 @@ database/vrms.sql
 
 ## MySQL setup
 
-1. Start MySQL locally.
-2. Place the MySQL Connector/J JAR inside the `lib/` folder.
+1. Install and start MySQL locally.
+2. Fresh clones do **not** need a manual Connector/J download. The included build script downloads MySQL Connector/J automatically the first time it is needed.
 3. By default VRMS connects with:
 
 ```text
@@ -76,10 +76,36 @@ Password: admin123
 
 ## Compile and run
 
-From the repository root on Windows PowerShell:
+### Easiest option on Windows
+
+After a fresh clone or pull, run:
 
 ```powershell
-Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue
+.\run.bat
+```
+
+You can also double-click `run.bat`.
+
+It automatically:
+- checks for a JDK
+- downloads MySQL Connector/J if the JAR is missing
+- cleans the old `out/` folder
+- compiles every Java source file
+- launches VRMS
+
+The downloaded Connector/J JAR stays in `lib/` locally and is ignored by Git, so later pulls do not need to download it again.
+
+### Compile only
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
+```
+
+### Manual compile/run
+
+If the Connector/J JAR already exists in `lib/`:
+
+```powershell
 javac -cp "lib/*" -d out src/vrms/*.java
 java -cp "out;lib/*" vrms.Main
 ```
