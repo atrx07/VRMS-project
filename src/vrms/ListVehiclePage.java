@@ -30,11 +30,28 @@ public class ListVehiclePage extends JFrame {
         setResizable(true);
         WindowState.apply(this);
 
-        JPanel root = new JPanel();
-        root.setBackground(UIColors.BG_PAGE);
-        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        root.setBorder(new EmptyBorder(28, 55, 25, 55));
-        setContentPane(root);
+        JPanel sidePanel = ResponsiveUI.createSidePanel(
+                "VEHICLE LISTING",
+                "Put your vehicle on VRMS",
+                "Submit the basic vehicle details here. New listings stay pending until an administrator approves them.",
+                "Choose the correct vehicle type",
+                "Use the registration number exactly as shown on the vehicle",
+                "Set the daily rental price you want to receive"
+        );
+
+        JPanel formCard = createFormCard();
+        setContentPane(ResponsiveUI.createResponsiveFormPage(this, sidePanel, formCard));
+    }
+
+    private JPanel createFormCard() {
+        JPanel card = new JPanel();
+        card.setBackground(UIColors.CARD_BG);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(390, 420));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(24, 34, 22, 34)
+        ));
 
         JLabel title = new JLabel("List Your Vehicle");
         title.setFont(new Font("Segoe UI", Font.BOLD, 23));
@@ -46,15 +63,15 @@ public class ListVehiclePage extends JFrame {
         subtitle.setForeground(UIColors.TEXT_MUTED);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        root.add(title);
-        root.add(Box.createVerticalStrut(4));
-        root.add(subtitle);
-        root.add(Box.createVerticalStrut(24));
+        card.add(title);
+        card.add(Box.createVerticalStrut(4));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(20));
 
-        addField(root, "Vehicle Name", nameField);
-        addField(root, "Vehicle Type", typeBox);
-        addField(root, "Registration Number", registrationField);
-        addField(root, "Price Per Day (Rs.)", priceField);
+        addField(card, "Vehicle Name", nameField);
+        addField(card, "Vehicle Type", typeBox);
+        addField(card, "Registration Number", registrationField);
+        addField(card, "Price Per Day (Rs.)", priceField);
 
         JButton submitButton = createPrimaryButton("SUBMIT FOR APPROVAL");
         submitButton.setPreferredSize(new Dimension(FORM_WIDTH, 38));
@@ -66,18 +83,20 @@ public class ListVehiclePage extends JFrame {
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> backToCatalog());
 
-        root.add(Box.createVerticalStrut(5));
-        root.add(submitButton);
-        root.add(Box.createVerticalStrut(15));
-        root.add(backButton);
+        card.add(Box.createVerticalStrut(3));
+        card.add(submitButton);
+        card.add(Box.createVerticalStrut(12));
+        card.add(backButton);
+
+        return card;
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
         JPanel fieldGroup = new JPanel();
         fieldGroup.setOpaque(false);
         fieldGroup.setLayout(new BoxLayout(fieldGroup, BoxLayout.Y_AXIS));
-        fieldGroup.setPreferredSize(new Dimension(FORM_WIDTH, 58));
-        fieldGroup.setMaximumSize(new Dimension(FORM_WIDTH, 58));
+        fieldGroup.setPreferredSize(new Dimension(FORM_WIDTH, 56));
+        fieldGroup.setMaximumSize(new Dimension(FORM_WIDTH, 56));
         fieldGroup.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel label = new JLabel(labelText);
@@ -95,7 +114,7 @@ public class ListVehiclePage extends JFrame {
         fieldGroup.add(field);
 
         panel.add(fieldGroup);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(9));
     }
 
     private void submitVehicle() {
