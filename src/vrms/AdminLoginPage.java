@@ -27,14 +27,30 @@ public class AdminLoginPage extends JFrame {
         setResizable(true);
         WindowState.apply(this);
 
-        JPanel root = new JPanel();
-        root.setBackground(UIColors.BG_PAGE);
-        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        root.setBorder(new EmptyBorder(25, 45, 20, 45));
-        setContentPane(root);
+        JTextField emailField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+
+        JPanel sidePanel = ResponsiveUI.createSidePanel(
+                "ADMIN ACCESS",
+                "Manage the VRMS marketplace",
+                "Administrator access is separated from customer accounts so listing approvals and catalog management stay controlled.",
+                "Review pending vehicle listings",
+                "Manage approved vehicles",
+                "View platform earnings and rental activity"
+        );
+
+        JPanel formCard = new JPanel();
+        formCard.setBackground(UIColors.CARD_BG);
+        formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
+        formCard.setPreferredSize(new Dimension(370, 310));
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(24, 30, 22, 30)
+        ));
 
         JLabel title = new JLabel("ADMIN LOGIN");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(UIColors.TEXT_DARK);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel brand = new JLabel("VRMS");
@@ -42,16 +58,13 @@ public class AdminLoginPage extends JFrame {
         brand.setForeground(UIColors.PRIMARY);
         brand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField emailField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
+        formCard.add(title);
+        formCard.add(Box.createVerticalStrut(4));
+        formCard.add(brand);
+        formCard.add(Box.createVerticalStrut(20));
 
-        root.add(title);
-        root.add(Box.createVerticalStrut(4));
-        root.add(brand);
-        root.add(Box.createVerticalStrut(20));
-
-        addField(root, "Admin Email", emailField);
-        addField(root, "Password", passwordField);
+        addField(formCard, "Admin Email", emailField);
+        addField(formCard, "Password", passwordField);
 
         JButton loginButton = new JButton("LOGIN AS ADMIN");
         loginButton.setUI(new BasicButtonUI());
@@ -96,8 +109,8 @@ public class AdminLoginPage extends JFrame {
             }
         });
 
-        root.add(loginButton);
-        root.add(Box.createVerticalStrut(15));
+        formCard.add(loginButton);
+        formCard.add(Box.createVerticalStrut(12));
 
         JButton backButton = new JButton("Back to Customer Login");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -111,7 +124,9 @@ public class AdminLoginPage extends JFrame {
             new LoginPage().setVisible(true);
             dispose();
         });
-        root.add(backButton);
+        formCard.add(backButton);
+
+        setContentPane(ResponsiveUI.createResponsiveFormPage(this, sidePanel, formCard));
     }
 
     private void addField(JPanel panel, String labelText, JComponent field) {
@@ -137,6 +152,6 @@ public class AdminLoginPage extends JFrame {
         fieldGroup.add(field);
 
         panel.add(fieldGroup);
-        panel.add(Box.createVerticalStrut(15));
+        panel.add(Box.createVerticalStrut(12));
     }
 }
