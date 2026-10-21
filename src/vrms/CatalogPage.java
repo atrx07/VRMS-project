@@ -16,7 +16,7 @@ public class CatalogPage extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        WindowState.apply(this);
 
         JPanel root = new JPanel(new BorderLayout(0, 20));
         root.setBackground(UIColors.BG_PAGE);
