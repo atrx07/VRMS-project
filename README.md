@@ -90,7 +90,10 @@ You can also double-click `run.bat`.
 It automatically:
 - asks for the MySQL login on the first run and remembers it locally
 - checks whether the local MySQL service/port is available
-- tries to start an installed MySQL Windows service if it is stopped
+- starts an installed MySQL Windows service if it is stopped
+- remembers whether VRMS started that service
+- stops only that VRMS-started MySQL service when the application window closes
+- leaves MySQL running if it was already running before VRMS
 - checks for a JDK
 - downloads MySQL Connector/J if the JAR is missing
 - cleans the old `out/` folder
