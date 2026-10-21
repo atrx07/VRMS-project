@@ -15,6 +15,7 @@ public class MyVehiclesPage extends JFrame {
     public MyVehiclesPage() {
         setTitle("VRMS - My Vehicles");
         setSize(1100, 680);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
