@@ -19,7 +19,7 @@ public class AdminEarningsPage extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        WindowState.apply(this);
 
         JPanel root = new JPanel(new BorderLayout(0, 18));
         root.setBackground(UIColors.BG_PAGE);
