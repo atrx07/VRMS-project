@@ -13,6 +13,7 @@ public class CatalogPage extends JFrame {
     public CatalogPage() {
         setTitle("VRMS - Vehicle Catalog");
         setSize(1100, 680);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
