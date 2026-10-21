@@ -1,5 +1,6 @@
 param(
-    [switch]$ResetDbConfig
+    [switch]$ResetDbConfig,
+    [switch]$Elevated
 )
 
 $ErrorActionPreference = "Stop"
@@ -81,6 +82,50 @@ function Prompt-DbCredentials {
     }
 }
 
+function Test-IsAdministrator {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Get-LocalMySqlServices {
+    return @(Get-Service -ErrorAction SilentlyContinue | Where-Object {
+        $_.Name -like "MySQL*" -or $_.DisplayName -like "MySQL*"
+    })
+}
+
+function Restart-LauncherAsAdministratorIfNeeded {
+    if ($Elevated -or (Test-IsAdministrator)) {
+        return
+    }
+
+    $stoppedServices = @(Get-LocalMySqlServices | Where-Object { $_.Status -ne "Running" })
+    if ($stoppedServices.Count -eq 0) {
+        return
+    }
+
+    Write-Host "MySQL is stopped and Windows requires administrator permission to start it." -ForegroundColor Yellow
+    Write-Host "Requesting permission now..." -ForegroundColor Cyan
+
+    $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Elevated"
+    if ($ResetDbConfig) {
+        $arguments += " -ResetDbConfig"
+    }
+
+    try {
+        $process = Start-Process -FilePath "powershell.exe" `
+            -ArgumentList $arguments `
+            -Verb RunAs `
+            -Wait `
+            -PassThru
+
+        exit $process.ExitCode
+    } catch {
+        Write-Host "Administrator permission was not granted. VRMS cannot start MySQL." -ForegroundColor Red
+        exit 1
+    }
+}
+
 function Test-LocalMySqlPort {
     $client = New-Object System.Net.Sockets.TcpClient
 
@@ -100,9 +145,7 @@ function Test-LocalMySqlPort {
 }
 
 function Start-LocalMySqlIfNeeded {
-    $services = @(Get-Service -ErrorAction SilentlyContinue | Where-Object {
-        $_.Name -like "MySQL*" -or $_.DisplayName -like "MySQL*"
-    })
+    $services = Get-LocalMySqlServices
 
     if ($services.Count -eq 0) {
         return
@@ -167,6 +210,8 @@ function Test-DatabaseLogin {
 
     return $false
 }
+
+Restart-LauncherAsAdministratorIfNeeded
 
 if ($ResetDbConfig -and (Test-Path $configPath)) {
     Remove-Item $configPath -Force
