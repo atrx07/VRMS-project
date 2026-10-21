@@ -49,7 +49,7 @@ public class ProfilePage extends JFrame {
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(420, 500));
+        card.setPreferredSize(new Dimension(420, 475));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(24, 32, 22, 32)
