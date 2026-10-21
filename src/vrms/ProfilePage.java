@@ -19,6 +19,7 @@ public class ProfilePage extends JFrame {
     public ProfilePage() {
         setTitle("VRMS - Profile");
         setSize(560, 560);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
