@@ -191,8 +191,19 @@ function Stop-MySqlServicesStartedByVrms {
 function Test-DatabaseLogin {
     Write-Host "Checking MySQL login..." -ForegroundColor Cyan
 
-    $output = & java -cp "$outDir;$libDir\*" vrms.DatabaseCheck 2>&1
-    $code = $LASTEXITCODE
+    # A failed JDBC login is an expected result here, not a PowerShell failure.
+    # Windows PowerShell can promote native stderr to a terminating error when
+    # ErrorActionPreference is Stop, so temporarily allow the Java checker to
+    # return its normal non-zero exit code.
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+
+    try {
+        $output = & java -cp "$outDir;$libDir\*" vrms.DatabaseCheck 2>&1
+        $code = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 
     if ($code -eq 0) {
         Write-Host "MySQL login verified." -ForegroundColor Green
