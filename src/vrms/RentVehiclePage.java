@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class RentVehiclePage extends JFrame {
+    private static final int FORM_WIDTH = 340;
+
     private final String[] vehicle;
     private final JTextField startField = new JTextField(LocalDate.now().toString());
     private final JTextField endField = new JTextField(LocalDate.now().plusDays(1).toString());
@@ -24,71 +26,88 @@ public class RentVehiclePage extends JFrame {
         setResizable(true);
         WindowState.apply(this);
 
-        JPanel root = new JPanel();
-        root.setBackground(UIColors.BG_PAGE);
-        root.setBorder(new EmptyBorder(28, 42, 28, 42));
-        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        setContentPane(root);
+        String ownerName;
+        try {
+            ownerName = UserStore.findNameById(Integer.parseInt(vehicle[1]));
+        } catch (IOException ex) {
+            ownerName = "User " + vehicle[1];
+        }
+
+        JPanel sidePanel = ResponsiveUI.createSidePanel(
+                "RENTAL DETAILS",
+                vehicle[2],
+                "Listed by " + ownerName + "<br>Rs. " + vehicle[5] + " per day",
+                "Choose the rental start and end dates",
+                "The listed daily rate is used to calculate rent",
+                "A 10% VRMS service fee is added at payment"
+        );
+
+        JPanel formCard = createFormCard();
+        setContentPane(ResponsiveUI.createResponsiveFormPage(this, sidePanel, formCard));
+
+        calculateTotal();
+    }
+
+    private JPanel createFormCard() {
+        JPanel card = new JPanel();
+        card.setBackground(UIColors.CARD_BG);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(420, 440));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(24, 32, 22, 32)
+        ));
 
         JLabel title = new JLabel("Rent Vehicle");
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         title.setForeground(UIColors.TEXT_DARK);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel vehicleName = new JLabel(vehicle[2]);
-        vehicleName.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel vehicleName = new JLabel(vehicle[2] + "  |  Rs. " + vehicle[5] + " / day");
+        vehicleName.setFont(new Font("Segoe UI", Font.BOLD, 14));
         vehicleName.setForeground(UIColors.PRIMARY);
         vehicleName.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel owner;
-        try {
-            owner = new JLabel("Listed by " + UserStore.findNameById(Integer.parseInt(vehicle[1])));
-        } catch (IOException ex) {
-            owner = new JLabel("Listed by User " + vehicle[1]);
-        }
-        owner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        owner.setForeground(UIColors.TEXT_MUTED);
-        owner.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel subtitle = new JLabel("Choose the rental period");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setForeground(UIColors.TEXT_MUTED);
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel rate = new JLabel("Rs. " + vehicle[5] + " / day");
-        rate.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        rate.setForeground(UIColors.TEXT_DARK);
-        rate.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(title);
+        card.add(Box.createVerticalStrut(6));
+        card.add(vehicleName);
+        card.add(Box.createVerticalStrut(4));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(22));
 
-        root.add(title);
-        root.add(Box.createVerticalStrut(18));
-        root.add(vehicleName);
-        root.add(Box.createVerticalStrut(4));
-        root.add(owner);
-        root.add(Box.createVerticalStrut(4));
-        root.add(rate);
-        root.add(Box.createVerticalStrut(24));
-
-        addField(root, "Start Date (YYYY-MM-DD)", startField);
-        addField(root, "End Date (YYYY-MM-DD)", endField);
+        addField(card, "Start Date (YYYY-MM-DD)", startField);
+        addField(card, "End Date (YYYY-MM-DD)", endField);
 
         JButton calculateButton = createSecondaryButton("Calculate Rental");
+        calculateButton.setPreferredSize(new Dimension(FORM_WIDTH, 38));
+        calculateButton.setMaximumSize(new Dimension(FORM_WIDTH, 38));
         calculateButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         calculateButton.addActionListener(e -> calculateTotal());
-        root.add(calculateButton);
-        root.add(Box.createVerticalStrut(15));
+        card.add(calculateButton);
+        card.add(Box.createVerticalStrut(16));
 
         totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         totalLabel.setForeground(UIColors.PRIMARY);
         totalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        root.add(totalLabel);
+        card.add(totalLabel);
 
         JLabel feeNote = new JLabel("A 10% VRMS service fee is added on the payment page.");
         feeNote.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         feeNote.setForeground(UIColors.TEXT_MUTED);
         feeNote.setAlignmentX(Component.LEFT_ALIGNMENT);
-        root.add(Box.createVerticalStrut(5));
-        root.add(feeNote);
-        root.add(Box.createVerticalGlue());
+        card.add(Box.createVerticalStrut(5));
+        card.add(feeNote);
+        card.add(Box.createVerticalGlue());
 
         JPanel actions = new JPanel(new GridLayout(1, 2, 10, 0));
         actions.setOpaque(false);
-        actions.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        actions.setPreferredSize(new Dimension(FORM_WIDTH, 40));
+        actions.setMaximumSize(new Dimension(FORM_WIDTH, 40));
         actions.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JButton cancelButton = createSecondaryButton("Back");
@@ -102,25 +121,35 @@ public class RentVehiclePage extends JFrame {
 
         actions.add(cancelButton);
         actions.add(paymentButton);
-        root.add(actions);
+        card.add(actions);
 
-        calculateTotal();
+        return card;
     }
 
     private void addField(JPanel panel, String labelText, JTextField field) {
+        JPanel group = new JPanel();
+        group.setOpaque(false);
+        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+        group.setPreferredSize(new Dimension(FORM_WIDTH, 62));
+        group.setMaximumSize(new Dimension(FORM_WIDTH, 62));
+        group.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(UIColors.TEXT_DARK);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        field.setPreferredSize(new Dimension(FORM_WIDTH, 36));
+        field.setMaximumSize(new Dimension(FORM_WIDTH, 36));
         field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        panel.add(label);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(field);
-        panel.add(Box.createVerticalStrut(15));
+        group.add(label);
+        group.add(Box.createVerticalStrut(5));
+        group.add(field);
+
+        panel.add(group);
+        panel.add(Box.createVerticalStrut(10));
     }
 
     private void calculateTotal() {
