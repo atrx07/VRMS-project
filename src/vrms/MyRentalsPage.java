@@ -13,6 +13,7 @@ public class MyRentalsPage extends JFrame {
     public MyRentalsPage() {
         setTitle("VRMS - My Rentals");
         setSize(1100, 680);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
