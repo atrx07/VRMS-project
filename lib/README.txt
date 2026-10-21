@@ -4,10 +4,14 @@ For a fresh clone, run from the project root:
 
 run.bat
 
-or:
+or double-click run.bat.
 
-powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
+On the first launch, VRMS asks for the local MySQL username/password and saves them locally for that Windows user. Future pulls and launches reuse the saved login.
+
+To change the saved MySQL login:
+
+run.bat -ResetDbConfig
 
 The build script downloads MySQL Connector/J 9.7.0 from Maven Central if the JAR is missing, then compiles the project.
 
-Downloaded JAR files in this folder are ignored by Git.
+Downloaded JAR files and the local database-login config are ignored by Git.
