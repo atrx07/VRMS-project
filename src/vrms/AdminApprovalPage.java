@@ -60,18 +60,7 @@ public class AdminApprovalPage extends JFrame {
     }
 
     private JScrollPane createCardArea() {
-        cardGrid.setOpaque(false);
-
-        JPanel holder = new JPanel(new BorderLayout());
-        holder.setBackground(UIColors.BG_PAGE);
-        holder.add(cardGrid, BorderLayout.NORTH);
-
-        JScrollPane scrollPane = new JScrollPane(holder);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(UIColors.BG_PAGE);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        return scrollPane;
+        return ResponsiveUI.createCenteredScroll(cardGrid);
     }
 
     private JPanel createVehicleCard(String[] vehicle) throws IOException {
