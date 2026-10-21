@@ -51,7 +51,9 @@ Password: empty
 
 On startup, the program creates the `vrms` database and required tables if they do not already exist.
 
-On the first `run.bat` launch, VRMS asks for the local MySQL username and password. The password input is hidden and the login is saved locally in `.vrms-db.json` using Windows user encryption. That file is ignored by Git, so normal pulls do not ask for the password again.
+On the first `run.bat` launch, VRMS asks for the local MySQL username and password. The password input is hidden. VRMS now tests the login against MySQL before saving it. If the login is wrong, the launcher shows the MySQL error and immediately lets you re-enter the username and password instead of trapping you with a bad saved config.
+
+After a successful connection, the login is saved locally in `.vrms-db.json` using Windows user encryption. That file is ignored by Git, so normal pulls do not ask for the password again. If previously saved credentials later stop working, the launcher removes the invalid saved login and asks for new credentials.
 
 To replace the saved login later:
 
