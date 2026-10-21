@@ -58,22 +58,13 @@ public class AdminEarningsPage extends JFrame {
 
         JPanel summary = new JPanel(new GridLayout(1, 3, 14, 0));
         summary.setOpaque(false);
+        summary.setPreferredSize(new Dimension(900, 92));
         summary.add(createSummaryCard("VRMS earnings", earningsValue, UIColors.SUCCESS));
         summary.add(createSummaryCard("Owner payouts", ownerValue, UIColors.PRIMARY));
         summary.add(createSummaryCard("Customer payments", paymentValue, UIColors.TEXT_DARK));
-        center.add(summary, BorderLayout.NORTH);
+        center.add(ResponsiveUI.createCenteredHolder(summary), BorderLayout.NORTH);
 
-        transactionGrid.setOpaque(false);
-        JPanel holder = new JPanel(new BorderLayout());
-        holder.setBackground(UIColors.BG_PAGE);
-        holder.add(transactionGrid, BorderLayout.NORTH);
-
-        JScrollPane scrollPane = new JScrollPane(holder);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(UIColors.BG_PAGE);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        center.add(scrollPane, BorderLayout.CENTER);
+        center.add(ResponsiveUI.createCenteredScroll(transactionGrid), BorderLayout.CENTER);
 
         return center;
     }
@@ -82,6 +73,7 @@ public class AdminEarningsPage extends JFrame {
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(430, 145));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(16, 16, 16, 16)
