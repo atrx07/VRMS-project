@@ -9,6 +9,7 @@ $buildScript = Join-Path $projectRoot "build.ps1"
 $configPath = Join-Path $projectRoot ".vrms-db.json"
 $libDir = Join-Path $projectRoot "lib"
 $outDir = Join-Path $projectRoot "out"
+$startedMySqlServices = @()
 
 function Convert-SecureStringToPlainText {
     param([Security.SecureString]$SecureString)
@@ -74,6 +75,52 @@ function Test-LocalMySqlPort {
     }
 }
 
+function Start-LocalMySqlIfNeeded {
+    $services = @(Get-Service -ErrorAction SilentlyContinue | Where-Object {
+        $_.Name -like "MySQL*" -or $_.DisplayName -like "MySQL*"
+    })
+
+    if ($services.Count -eq 0) {
+        return
+    }
+
+    foreach ($service in $services) {
+        if ($service.Status -eq "Running") {
+            Write-Host "MySQL service '$($service.Name)' is already running." -ForegroundColor DarkGray
+            continue
+        }
+
+        Write-Host "MySQL service '$($service.Name)' is stopped. Starting it for VRMS..." -ForegroundColor Yellow
+
+        try {
+            Start-Service -Name $service.Name -ErrorAction Stop
+            $service.WaitForStatus("Running", [TimeSpan]::FromSeconds(8))
+            $script:startedMySqlServices += $service.Name
+            Write-Host "Started MySQL service '$($service.Name)'." -ForegroundColor Green
+        } catch {
+            Write-Host "Could not start MySQL automatically." -ForegroundColor Red
+            Write-Host "Start the MySQL service manually or run this launcher with permission to manage services." -ForegroundColor Red
+            throw
+        }
+    }
+}
+
+function Stop-MySqlServicesStartedByVrms {
+    foreach ($serviceName in $script:startedMySqlServices) {
+        try {
+            $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+            if ($null -ne $service -and $service.Status -eq "Running") {
+                Write-Host "Stopping MySQL service '$serviceName' started by VRMS..." -ForegroundColor DarkGray
+                Stop-Service -Name $serviceName -ErrorAction Stop
+                $service.WaitForStatus("Stopped", [TimeSpan]::FromSeconds(8))
+            }
+        } catch {
+            Write-Host "Could not stop MySQL service '$serviceName'. It may remain running." -ForegroundColor Yellow
+        }
+    }
+}
+
 if ($ResetDbConfig -and (Test-Path $configPath)) {
     Remove-Item $configPath -Force
     Write-Host "Saved MySQL login cleared." -ForegroundColor Yellow
@@ -113,36 +160,29 @@ if ($null -eq $dbPassword) {
 $env:VRMS_DB_USER = $dbUser
 $env:VRMS_DB_PASSWORD = $dbPassword
 
-if (-not $env:VRMS_DB_SERVER_URL -and -not $env:VRMS_DB_URL) {
-    $mysqlServices = @(Get-Service -ErrorAction SilentlyContinue | Where-Object {
-        $_.Name -like "MySQL*" -or $_.DisplayName -like "MySQL*"
-    })
+$exitCode = 0
 
-    foreach ($service in $mysqlServices) {
-        if ($service.Status -ne "Running") {
-            Write-Host "MySQL service '$($service.Name)' is stopped. Trying to start it..." -ForegroundColor Yellow
-            try {
-                Start-Service -Name $service.Name -ErrorAction Stop
-                $service.WaitForStatus("Running", [TimeSpan]::FromSeconds(5))
-            } catch {
-                Write-Host "Could not start MySQL automatically. Start the MySQL service and run VRMS again." -ForegroundColor Red
-                exit 1
-            }
+try {
+    if (-not $env:VRMS_DB_SERVER_URL -and -not $env:VRMS_DB_URL) {
+        Start-LocalMySqlIfNeeded
+
+        if (-not (Test-LocalMySqlPort)) {
+            Write-Host "MySQL is not reachable on localhost:3306." -ForegroundColor Red
+            Write-Host "Install/start MySQL Server, then run VRMS again." -ForegroundColor Red
+            exit 1
         }
     }
 
-    if (-not (Test-LocalMySqlPort)) {
-        Write-Host "MySQL is not reachable on localhost:3306." -ForegroundColor Red
-        Write-Host "Install/start MySQL Server, then run VRMS again." -ForegroundColor Red
-        exit 1
+    & $buildScript
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
     }
+
+    Write-Host "Starting VRMS..." -ForegroundColor Cyan
+    & java -cp "$outDir;$libDir\*" vrms.Main
+    $exitCode = $LASTEXITCODE
+} finally {
+    Stop-MySqlServicesStartedByVrms
 }
 
-& $buildScript
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
-
-Write-Host "Starting VRMS..." -ForegroundColor Cyan
-& java -cp "$outDir;$libDir\*" vrms.Main
-exit $LASTEXITCODE
+exit $exitCode
