@@ -16,6 +16,7 @@ public class AdminEarningsPage extends JFrame {
     public AdminEarningsPage() {
         setTitle("VRMS - Earnings");
         setSize(1000, 650);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
