@@ -42,7 +42,7 @@ public class AdminLoginPage extends JFrame {
         JPanel formCard = new JPanel();
         formCard.setBackground(UIColors.CARD_BG);
         formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
-        formCard.setPreferredSize(new Dimension(370, 310));
+        formCard.setPreferredSize(new Dimension(370, 285));
         formCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(24, 30, 22, 30)
