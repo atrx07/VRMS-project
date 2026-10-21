@@ -11,7 +11,9 @@ public class DatabaseCheck {
             Database.initializeDatabase();
             System.out.println("MySQL connection successful.");
         } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
+            // Print expected connection/authentication failures to standard output.
+            // The launcher reads the exit code to decide whether login succeeded.
+            System.out.println(ex.getMessage());
             System.exit(2);
         }
     }
