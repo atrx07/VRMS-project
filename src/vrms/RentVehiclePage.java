@@ -22,7 +22,7 @@ public class RentVehiclePage extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        WindowState.apply(this);
 
         JPanel root = new JPanel();
         root.setBackground(UIColors.BG_PAGE);
