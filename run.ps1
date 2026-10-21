@@ -49,11 +49,35 @@ function Read-LocalDbConfig {
         return @{
             User = [string]$config.user
             Password = Convert-SecureStringToPlainText $securePassword
+            Source = "saved"
         }
     } catch {
         Write-Host "Saved MySQL login could not be read. It will be recreated." -ForegroundColor Yellow
         Remove-Item $configPath -Force -ErrorAction SilentlyContinue
         return $null
+    }
+}
+
+function Prompt-DbCredentials {
+    param([string]$DefaultUser = "root")
+
+    Write-Host ""
+    Write-Host "Enter MySQL login for VRMS" -ForegroundColor Cyan
+
+    $enteredUser = Read-Host "MySQL user [$DefaultUser]"
+    if ([string]::IsNullOrWhiteSpace($enteredUser)) {
+        $enteredUser = $DefaultUser
+    } else {
+        $enteredUser = $enteredUser.Trim()
+    }
+
+    $securePassword = Read-Host "MySQL password (input hidden; press Enter if none)" -AsSecureString
+
+    return @{
+        User = $enteredUser
+        Password = Convert-SecureStringToPlainText $securePassword
+        SecurePassword = $securePassword
+        Source = "prompt"
     }
 }
 
@@ -121,44 +145,33 @@ function Stop-MySqlServicesStartedByVrms {
     }
 }
 
+function Test-DatabaseLogin {
+    Write-Host "Checking MySQL login..." -ForegroundColor Cyan
+
+    $output = & java -cp "$outDir;$libDir\*" vrms.DatabaseCheck 2>&1
+    $code = $LASTEXITCODE
+
+    if ($code -eq 0) {
+        Write-Host "MySQL login verified." -ForegroundColor Green
+        return $true
+    }
+
+    Write-Host ""
+    Write-Host "MySQL login failed." -ForegroundColor Red
+
+    foreach ($line in $output) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$line)) {
+            Write-Host ([string]$line) -ForegroundColor Yellow
+        }
+    }
+
+    return $false
+}
+
 if ($ResetDbConfig -and (Test-Path $configPath)) {
     Remove-Item $configPath -Force
     Write-Host "Saved MySQL login cleared." -ForegroundColor Yellow
 }
-
-$dbUser = $env:VRMS_DB_USER
-$dbPassword = $env:VRMS_DB_PASSWORD
-
-if ([string]::IsNullOrWhiteSpace($dbUser)) {
-    $dbUser = "root"
-}
-
-if ($null -eq $dbPassword) {
-    $savedConfig = Read-LocalDbConfig
-
-    if ($null -ne $savedConfig) {
-        $dbUser = $savedConfig.User
-        $dbPassword = $savedConfig.Password
-        Write-Host "Using saved MySQL login for user '$dbUser'." -ForegroundColor DarkGray
-    } else {
-        Write-Host ""
-        Write-Host "First-time MySQL setup for VRMS" -ForegroundColor Cyan
-
-        $enteredUser = Read-Host "MySQL user [root]"
-        if (-not [string]::IsNullOrWhiteSpace($enteredUser)) {
-            $dbUser = $enteredUser.Trim()
-        }
-
-        $securePassword = Read-Host "MySQL password (input hidden; press Enter if none)" -AsSecureString
-        $dbPassword = Convert-SecureStringToPlainText $securePassword
-
-        Save-LocalDbConfig -User $dbUser -Password $securePassword
-        Write-Host ""
-    }
-}
-
-$env:VRMS_DB_USER = $dbUser
-$env:VRMS_DB_PASSWORD = $dbPassword
 
 $exitCode = 0
 
@@ -178,6 +191,54 @@ try {
         exit $LASTEXITCODE
     }
 
+    $credentials = $null
+
+    if ($null -ne $env:VRMS_DB_PASSWORD) {
+        $user = $env:VRMS_DB_USER
+        if ([string]::IsNullOrWhiteSpace($user)) {
+            $user = "root"
+        }
+
+        $credentials = @{
+            User = $user
+            Password = $env:VRMS_DB_PASSWORD
+            Source = "environment"
+        }
+    } else {
+        $credentials = Read-LocalDbConfig
+    }
+
+    if ($null -eq $credentials) {
+        $credentials = Prompt-DbCredentials -DefaultUser "root"
+    }
+
+    while ($true) {
+        $env:VRMS_DB_USER = $credentials.User
+        $env:VRMS_DB_PASSWORD = $credentials.Password
+
+        if (Test-DatabaseLogin) {
+            if ($credentials.Source -eq "prompt") {
+                Save-LocalDbConfig -User $credentials.User -Password $credentials.SecurePassword
+            }
+
+            break
+        }
+
+        if ($credentials.Source -eq "saved" -and (Test-Path $configPath)) {
+            Remove-Item $configPath -Force -ErrorAction SilentlyContinue
+            Write-Host "Removed the invalid saved MySQL login." -ForegroundColor DarkGray
+        }
+
+        Write-Host ""
+        $choice = Read-Host "Press Enter to re-enter MySQL login, or type Q to quit"
+        if ($choice -match "^[Qq]$") {
+            exit 1
+        }
+
+        $credentials = Prompt-DbCredentials -DefaultUser $credentials.User
+    }
+
+    Write-Host ""
     Write-Host "Starting VRMS..." -ForegroundColor Cyan
     & java -cp "$outDir;$libDir\*" vrms.Main
     $exitCode = $LASTEXITCODE
