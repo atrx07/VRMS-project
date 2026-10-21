@@ -47,7 +47,7 @@ public class ListVehiclePage extends JFrame {
         JPanel card = new JPanel();
         card.setBackground(UIColors.CARD_BG);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(390, 420));
+        card.setPreferredSize(new Dimension(390, 390));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(24, 34, 22, 34)
