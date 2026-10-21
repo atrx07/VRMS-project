@@ -19,7 +19,7 @@ public class LoginPage extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        WindowState.apply(this);
 
         JPanel root = new JPanel(new BorderLayout());
         root.add(createWelcomePanel(), BorderLayout.WEST);
