@@ -9,6 +9,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class ProfilePage extends JFrame {
+    private static final int FORM_WIDTH = 340;
+
     private final JTextField nameField = new JTextField();
     private final JTextField emailField = new JTextField();
     private final JTextField phoneField = new JTextField();
@@ -28,25 +30,33 @@ public class ProfilePage extends JFrame {
         setResizable(true);
         WindowState.apply(this);
 
-        JPanel root = new JPanel(new BorderLayout(0, 18));
-        root.setBackground(UIColors.BG_PAGE);
-        root.setBorder(new EmptyBorder(28, 42, 28, 42));
-        setContentPane(root);
+        JPanel sidePanel = ResponsiveUI.createSidePanel(
+                "ACCOUNT SETTINGS",
+                "Keep your details up to date",
+                "Your profile information is used across VRMS for listings, rentals and account access.",
+                "Update your name, email and phone number",
+                "Change your password only when needed",
+                "Your current session updates immediately after saving"
+        );
 
-        root.add(createHeader(), BorderLayout.NORTH);
-        root.add(createForm(), BorderLayout.CENTER);
-        root.add(createActions(), BorderLayout.SOUTH);
+        JPanel formCard = createFormCard();
+        setContentPane(ResponsiveUI.createResponsiveFormPage(this, sidePanel, formCard));
 
         loadProfile();
     }
 
-    private JPanel createHeader() {
-        JPanel header = new JPanel();
-        header.setOpaque(false);
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+    private JPanel createFormCard() {
+        JPanel card = new JPanel();
+        card.setBackground(UIColors.CARD_BG);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(420, 500));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(24, 32, 22, 32)
+        ));
 
         JLabel title = new JLabel("My Profile");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 25));
         title.setForeground(UIColors.TEXT_DARK);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -55,27 +65,17 @@ public class ProfilePage extends JFrame {
         subtitle.setForeground(UIColors.TEXT_MUTED);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        header.add(title);
-        header.add(Box.createVerticalStrut(4));
-        header.add(subtitle);
-        return header;
-    }
-
-    private JPanel createForm() {
-        JPanel card = new JPanel();
-        card.setBackground(UIColors.CARD_BG);
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIColors.BORDER),
-                new EmptyBorder(22, 24, 22, 24)
-        ));
-
         JLabel accountLabel = new JLabel("Customer Account");
-        accountLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        accountLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         accountLabel.setForeground(UIColors.PRIMARY);
         accountLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(accountLabel);
+
+        card.add(title);
+        card.add(Box.createVerticalStrut(4));
+        card.add(subtitle);
         card.add(Box.createVerticalStrut(18));
+        card.add(accountLabel);
+        card.add(Box.createVerticalStrut(14));
 
         addField(card, "Name", nameField);
         addField(card, "Email", emailField);
@@ -87,29 +87,13 @@ public class ProfilePage extends JFrame {
         passwordNote.setForeground(UIColors.TEXT_MUTED);
         passwordNote.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.add(passwordNote);
+        card.add(Box.createVerticalGlue());
 
-        return card;
-    }
-
-    private void addField(JPanel panel, String labelText, JComponent field) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        label.setForeground(UIColors.TEXT_DARK);
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        field.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        panel.add(label);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(field);
-        panel.add(Box.createVerticalStrut(15));
-    }
-
-    private JPanel createActions() {
         JPanel actions = new JPanel(new GridLayout(1, 2, 10, 0));
         actions.setOpaque(false);
+        actions.setPreferredSize(new Dimension(FORM_WIDTH, 40));
+        actions.setMaximumSize(new Dimension(FORM_WIDTH, 40));
+        actions.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JButton backButton = createSecondaryButton("Back to Catalog");
         backButton.addActionListener(e -> backToCatalog());
@@ -119,7 +103,36 @@ public class ProfilePage extends JFrame {
 
         actions.add(backButton);
         actions.add(saveButton);
-        return actions;
+        card.add(Box.createVerticalStrut(16));
+        card.add(actions);
+
+        return card;
+    }
+
+    private void addField(JPanel panel, String labelText, JComponent field) {
+        JPanel group = new JPanel();
+        group.setOpaque(false);
+        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+        group.setPreferredSize(new Dimension(FORM_WIDTH, 58));
+        group.setMaximumSize(new Dimension(FORM_WIDTH, 58));
+        group.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setForeground(UIColors.TEXT_DARK);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        field.setPreferredSize(new Dimension(FORM_WIDTH, 36));
+        field.setMaximumSize(new Dimension(FORM_WIDTH, 36));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        group.add(label);
+        group.add(Box.createVerticalStrut(5));
+        group.add(field);
+
+        panel.add(group);
+        panel.add(Box.createVerticalStrut(10));
     }
 
     private void loadProfile() {
