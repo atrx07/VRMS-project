@@ -21,6 +21,7 @@ public class RentVehiclePage extends JFrame {
 
         setTitle("VRMS - Rent Vehicle");
         setSize(520, 520);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
