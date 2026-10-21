@@ -44,7 +44,7 @@ public class RegisterPage extends JFrame {
         JPanel formCard = new JPanel();
         formCard.setBackground(UIColors.CARD_BG);
         formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
-        formCard.setPreferredSize(new Dimension(380, 455));
+        formCard.setPreferredSize(new Dimension(380, 430));
         formCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIColors.BORDER),
                 new EmptyBorder(24, 34, 22, 34)
