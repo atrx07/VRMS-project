@@ -51,20 +51,21 @@ Password: empty
 
 On startup, the program creates the `vrms` database and required tables if they do not already exist.
 
-If your MySQL installation uses different credentials, set these environment variables before running:
+On the first `run.bat` launch, VRMS asks for the local MySQL username and password. The password input is hidden and the login is saved locally in `.vrms-db.json` using Windows user encryption. That file is ignored by Git, so normal pulls do not ask for the password again.
+
+To replace the saved login later:
+
+```powershell
+.\run.bat -ResetDbConfig
+```
+
+Environment variables still override the saved login when needed:
 
 ```text
 VRMS_DB_USER
 VRMS_DB_PASSWORD
 VRMS_DB_SERVER_URL
 VRMS_DB_URL
-```
-
-Example PowerShell configuration for a MySQL root password:
-
-```powershell
-$env:VRMS_DB_USER="root"
-$env:VRMS_DB_PASSWORD="your_password"
 ```
 
 A default admin is created automatically:
@@ -87,6 +88,9 @@ After a fresh clone or pull, run:
 You can also double-click `run.bat`.
 
 It automatically:
+- asks for the MySQL login on the first run and remembers it locally
+- checks whether the local MySQL service/port is available
+- tries to start an installed MySQL Windows service if it is stopped
 - checks for a JDK
 - downloads MySQL Connector/J if the JAR is missing
 - cleans the old `out/` folder
