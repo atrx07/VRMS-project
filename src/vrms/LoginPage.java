@@ -16,6 +16,7 @@ public class LoginPage extends JFrame {
     public LoginPage() {
         setTitle("VRMS - Vehicle Rental Management System");
         setSize(900, 550);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
