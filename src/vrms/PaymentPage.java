@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 public class PaymentPage extends JFrame {
+    private static final int CONTENT_WIDTH = 360;
+
     private final String[] vehicle;
     private final LocalDate startDate;
     private final LocalDate endDate;
@@ -32,11 +34,28 @@ public class PaymentPage extends JFrame {
         setResizable(true);
         WindowState.apply(this);
 
-        JPanel root = new JPanel();
-        root.setBackground(UIColors.BG_PAGE);
-        root.setBorder(new EmptyBorder(30, 42, 30, 42));
-        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        setContentPane(root);
+        JPanel sidePanel = ResponsiveUI.createSidePanel(
+                "PAYMENT REVIEW",
+                vehicle[2],
+                ownerText() + "<br>" + startDate + " to " + endDate,
+                "Review the rental amount before confirming",
+                "VRMS adds a fixed 10% service fee",
+                "The vehicle owner receives the listed rental amount"
+        );
+
+        JPanel formCard = createPaymentCard();
+        setContentPane(ResponsiveUI.createResponsiveFormPage(this, sidePanel, formCard));
+    }
+
+    private JPanel createPaymentCard() {
+        JPanel card = new JPanel();
+        card.setBackground(UIColors.CARD_BG);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(430, 485));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColors.BORDER),
+                new EmptyBorder(24, 34, 22, 34)
+        ));
 
         JLabel title = new JLabel("Payment");
         title.setFont(new Font("Segoe UI", Font.BOLD, 26));
@@ -48,16 +67,51 @@ public class PaymentPage extends JFrame {
         subtitle.setForeground(UIColors.TEXT_MUTED);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        root.add(title);
-        root.add(Box.createVerticalStrut(4));
-        root.add(subtitle);
-        root.add(Box.createVerticalStrut(22));
-        root.add(createSummaryCard());
-        root.add(Box.createVerticalGlue());
+        JLabel vehicleName = new JLabel(vehicle[2]);
+        vehicleName.setFont(new Font("Segoe UI", Font.BOLD, 19));
+        vehicleName.setForeground(UIColors.PRIMARY);
+        vehicleName.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel dates = new JLabel(startDate + "  to  " + endDate);
+        dates.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        dates.setForeground(UIColors.TEXT_MUTED);
+        dates.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        card.add(title);
+        card.add(Box.createVerticalStrut(4));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(20));
+        card.add(vehicleName);
+        card.add(Box.createVerticalStrut(4));
+        card.add(dates);
+        card.add(Box.createVerticalStrut(24));
+
+        card.add(createMoneyRow("Rental amount", rentalAmount, false));
+        card.add(Box.createVerticalStrut(10));
+        card.add(createMoneyRow("VRMS service fee (10%)", platformFee, false));
+        card.add(Box.createVerticalStrut(14));
+
+        JSeparator separator = new JSeparator();
+        separator.setPreferredSize(new Dimension(CONTENT_WIDTH, 1));
+        separator.setMaximumSize(new Dimension(CONTENT_WIDTH, 1));
+        separator.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(separator);
+        card.add(Box.createVerticalStrut(14));
+
+        card.add(createMoneyRow("Total payable", totalPaid, true));
+        card.add(Box.createVerticalStrut(18));
+
+        JLabel payout = new JLabel(String.format("Vehicle owner receives: Rs. %.2f", rentalAmount));
+        payout.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        payout.setForeground(UIColors.TEXT_MUTED);
+        payout.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(payout);
+        card.add(Box.createVerticalGlue());
 
         JPanel actions = new JPanel(new GridLayout(1, 2, 10, 0));
         actions.setOpaque(false);
-        actions.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        actions.setPreferredSize(new Dimension(CONTENT_WIDTH, 42));
+        actions.setMaximumSize(new Dimension(CONTENT_WIDTH, 42));
         actions.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JButton backButton = createSecondaryButton("Back");
@@ -71,58 +125,7 @@ public class PaymentPage extends JFrame {
 
         actions.add(backButton);
         actions.add(payButton);
-        root.add(actions);
-    }
-
-    private JPanel createSummaryCard() {
-        JPanel card = new JPanel();
-        card.setBackground(UIColors.CARD_BG);
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIColors.BORDER),
-                new EmptyBorder(20, 20, 20, 20)
-        ));
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 340));
-
-        JLabel vehicleName = new JLabel(vehicle[2]);
-        vehicleName.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        vehicleName.setForeground(UIColors.TEXT_DARK);
-        vehicleName.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel owner = new JLabel(ownerText());
-        owner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        owner.setForeground(UIColors.TEXT_MUTED);
-        owner.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel dates = new JLabel(startDate + "  to  " + endDate);
-        dates.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        dates.setForeground(UIColors.TEXT_MUTED);
-        dates.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        card.add(vehicleName);
-        card.add(Box.createVerticalStrut(5));
-        card.add(owner);
-        card.add(Box.createVerticalStrut(4));
-        card.add(dates);
-        card.add(Box.createVerticalStrut(24));
-        card.add(createMoneyRow("Rental amount", rentalAmount, false));
-        card.add(Box.createVerticalStrut(10));
-        card.add(createMoneyRow("VRMS service fee (10%)", platformFee, false));
-        card.add(Box.createVerticalStrut(14));
-
-        JSeparator separator = new JSeparator();
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        card.add(separator);
-        card.add(Box.createVerticalStrut(14));
-        card.add(createMoneyRow("Total payable", totalPaid, true));
-        card.add(Box.createVerticalStrut(18));
-
-        JLabel payout = new JLabel(String.format("Vehicle owner receives: Rs. %.2f", rentalAmount));
-        payout.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        payout.setForeground(UIColors.TEXT_MUTED);
-        payout.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(payout);
+        card.add(actions);
 
         return card;
     }
@@ -130,7 +133,8 @@ public class PaymentPage extends JFrame {
     private JPanel createMoneyRow(String labelText, double amount, boolean strong) {
         JPanel row = new JPanel(new BorderLayout());
         row.setOpaque(false);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        row.setPreferredSize(new Dimension(CONTENT_WIDTH, 28));
+        row.setMaximumSize(new Dimension(CONTENT_WIDTH, 28));
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel label = new JLabel(labelText);
