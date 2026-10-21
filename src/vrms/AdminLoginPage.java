@@ -14,6 +14,7 @@ public class AdminLoginPage extends JFrame {
     public AdminLoginPage() {
         setTitle("VRMS - Admin Login");
         setSize(400, 360);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
