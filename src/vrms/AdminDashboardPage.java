@@ -14,6 +14,7 @@ public class AdminDashboardPage extends JFrame {
     public AdminDashboardPage() {
         setTitle("VRMS - Admin Vehicle Catalog");
         setSize(1100, 680);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
