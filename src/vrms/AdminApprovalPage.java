@@ -13,6 +13,7 @@ public class AdminApprovalPage extends JFrame {
     public AdminApprovalPage() {
         setTitle("VRMS - Pending Approvals");
         setSize(1100, 680);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
