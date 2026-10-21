@@ -14,6 +14,7 @@ public class RegisterPage extends JFrame {
     public RegisterPage() {
         setTitle("VRMS - Customer Registration");
         setSize(460, 510);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
