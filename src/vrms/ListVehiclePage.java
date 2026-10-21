@@ -19,6 +19,7 @@ public class ListVehiclePage extends JFrame {
     public ListVehiclePage() {
         setTitle("VRMS - List Vehicle");
         setSize(500, 470);
+        setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
